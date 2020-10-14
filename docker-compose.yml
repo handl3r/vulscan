@@ -1,0 +1,18 @@
+version: '3'
+services:
+  vulscan-mysql:
+    image: mysql:5.7
+    container_name: vulscan_db
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_HOST=${DB_HOST}
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_DATABASE=${DB_NAME}
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+    volumes:
+    - vulscan_mysql:/var/lib/mysql
+volumes:
+  vulscan_mysql:
+    driver: local
