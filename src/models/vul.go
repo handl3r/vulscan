@@ -1,11 +1,11 @@
 package models
 
 type Vul struct {
-	ID  string `json:"id"`
-	Url string `json:"url"`
+	TaskID  string `json:"task_id" gorm:"primary_key, not null"`
+	Target string `json:"target"`
 
-	TaskID    string    `json:"task_id"`
-	Task      *Task     `json:"task"`
+	SegmentID    string    `json:"segment_id"`
+	Segment      *Segment     `json:"segment"`
 
 	VulInfoID string    `json:"vul_info_id"`
 	VulInfo   VulInfo   `json:"vul_info"`
