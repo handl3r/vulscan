@@ -16,7 +16,7 @@ func NewProjectRepository(baseRepository baseRepository) *ProjectRepository {
 	return &ProjectRepository{baseRepository: baseRepository}
 }
 
-func (pr *ProjectRepository) FindProjectById(id string) (*models.Project, error) {
+func (pr *ProjectRepository) FindProjectByID(id string) (*models.Project, error) {
 	project := &models.Project{}
 	err := pr.db.Model(&models.Project{}).Where("id = ?", id).Take(project).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -30,11 +30,25 @@ func (pr *ProjectRepository) FindProjectById(id string) (*models.Project, error)
 
 func (pr *ProjectRepository) Create(project *models.Project) error {
 	project.ID = uuid.New().String()
-	err := pr.db.Create(project).Error
+	err := pr.db.Model(&models.Project{}).Create(project).Error
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (pr *ProjectRepository)
+func (pr *ProjectRepository) DeleteByID(id string) error {
+	err := pr.db.Model(&models.Project{}).Delete(&models.Project{}, id).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (pr *ProjectRepository) Update(project *models.Project) error {
+	err := pr.db.Model(&models.Project{}).Save(project).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}

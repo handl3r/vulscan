@@ -18,7 +18,7 @@ func NewUserRepository(baseRepository baseRepository) *UserRepository {
 
 func (up *UserRepository) FindByEmail(email string) (*models.User, error) {
 	user := &models.User{}
-	err := up.db.Where("email = ?", email).First(&user).Error
+	err := up.db.Model(&models.User{}).Where("email = ?", email).First(&user).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, enums.ErrEntityNotFound
 	}
@@ -30,7 +30,7 @@ func (up *UserRepository) FindByEmail(email string) (*models.User, error) {
 
 func (up *UserRepository) Create(user *models.User) error {
 	user.ID = uuid.New().String()
-	err := up.db.Create(user).Error
+	err := up.db.Model(&models.User{}).Create(user).Error
 	if err != nil {
 		return err
 	}
@@ -38,7 +38,7 @@ func (up *UserRepository) Create(user *models.User) error {
 }
 
 func (up *UserRepository) Update(user *models.User) (*models.User, error) {
-	err := up.db.Save(user).Error
+	err := up.db.Model(&models.User{}).Save(user).Error
 	if err != nil {
 		return nil, err
 	}
