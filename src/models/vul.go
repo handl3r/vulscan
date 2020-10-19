@@ -4,7 +4,7 @@ package models
 // and BonusInfo
 type Vul struct {
 	ID        string `json:"task_id" gorm:"primary_key, not null"`
-	Target    string `json:"target"`
+	Target    string `json:"target" gorm:"not null"`
 	Method    string `json:"method"`
 	Parameter string `json:"parameter"`
 	Suffix    string `json:"suffix"`

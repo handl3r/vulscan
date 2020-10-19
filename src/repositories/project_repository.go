@@ -16,6 +16,22 @@ func NewProjectRepository(baseRepository baseRepository) *ProjectRepository {
 	return &ProjectRepository{baseRepository: baseRepository}
 }
 
+func (pr *ProjectRepository) GetByUserID(userID string) ([]*models.Project, error) {
+	user := &models.User{
+		ID: userID,
+	}
+	projects := make([]*models.Project, 0)
+	err := pr.db.Model(user).Association("UserID").Find(&projects)
+	// recheck latter if Find return ErrRecordNotFound
+	if err != nil {
+		return nil, err
+	}
+	if pr.db.RowsAffected == 0 {
+		return nil, enums.ErrEntityNotFound
+	}
+	return projects, nil
+}
+
 func (pr *ProjectRepository) FindProjectByID(id string) (*models.Project, error) {
 	project := &models.Project{}
 	err := pr.db.Model(&models.Project{}).Where("id = ?", id).Take(project).Error
