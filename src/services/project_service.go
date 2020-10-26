@@ -14,6 +14,10 @@ type ProjectService struct {
 	segmentRepository *repositories.SegmentRepository
 }
 
+func NewProjectService(projectRepository *repositories.ProjectRepository, segmentRepository *repositories.SegmentRepository) *ProjectService {
+	return &ProjectService{projectRepository: projectRepository, segmentRepository: segmentRepository}
+}
+
 // GetAll get all project basic information of a user
 func (ps *ProjectService) GetAll(userID string) ([]*models.Project, enums.Error) {
 	projects, err := ps.projectRepository.GetByUserID(userID)
@@ -35,6 +39,11 @@ func (ps *ProjectService) GetByID(projectID string) (*models.Project, enums.Erro
 	if err != nil {
 		return nil, enums.ErrSystem
 	}
+	segments, err := ps.segmentRepository.GetByProjectID(projectID)
+	if err != nil {
+		return project, enums.ErrSystem
+	}
+	project.Segments = segments
 	return project, nil
 }
 

@@ -28,6 +28,16 @@ func (vp *VulRepository) FindByID(id string) (*models.Vul, error) {
 	return vul, err
 }
 
+func (vp *VulRepository) GetBySegmentID(segmentID string) ([]models.Vul, error) {
+	segment := &models.Segment{ID: segmentID}
+	vuls := make([]models.Vul, 0)
+	err := vp.db.Model(segment).Association("Targets").Find(vuls)
+	if err != nil {
+		return nil, err
+	}
+	return vuls, nil
+}
+
 func (vp *VulRepository) Create(vul *models.Vul) error {
 	vul.ID = uuid.New().String()
 	err := vp.db.Model(&models.Vul{}).Create(vul).Error

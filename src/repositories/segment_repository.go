@@ -28,6 +28,16 @@ func (sp *SegmentRepository) FindByID(id string) (*models.Segment, error) {
 	return segment, nil
 }
 
+func (sp *SegmentRepository) GetByProjectID(projectID string) ([]models.Segment, error) {
+	segments := make([]models.Segment, 0)
+	project := &models.Project{ID: projectID}
+	err := sp.db.Model(project).Association("Segments").Find(&segments)
+	if err != nil {
+		return nil, err
+	}
+	return segments, nil
+}
+
 func (sp *SegmentRepository) Create(segment *models.Segment) error {
 	segment.ID = uuid.New().String()
 	err := sp.db.Model(&models.Segment{}).Create(segment).Error
