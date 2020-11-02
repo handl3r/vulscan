@@ -1,5 +1,7 @@
 package models
 
+import "vulscan/src/enums"
+
 // Vul of a target. Can create, read, delete by delete segment, can not update. Belong to a Segment and has many VulInfo
 // and BonusInfo
 type Vul struct {
@@ -15,4 +17,19 @@ type Vul struct {
 	VulInfo []VulInfo `json:"vul_info"`
 
 	BonusInfo string `json:"bonus_info"`
+}
+
+func NewVulWithTarget(target Target) *Vul {
+	method := ""
+	switch target.Method {
+	case enums.GET:
+		method = "GET"
+	case enums.POST:
+		method = "POST"
+	}
+	return &Vul{
+		Target:    target,
+		Method:    method,
+		SegmentID: target.SegmentID,
+	}
 }

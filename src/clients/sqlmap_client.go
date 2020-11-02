@@ -9,14 +9,13 @@ import (
 )
 
 type SqlmapClient struct {
-	token      string
-	endPoint   string
-	port       string
-	httpClient *fasthttp.Client
+	token    string
+	endPoint string
+	port     string
 }
 
 func NewSqlmapClient(token string, endPoint string, port string) *SqlmapClient {
-	return &SqlmapClient{token: token, endPoint: endPoint, port: port, httpClient: &fasthttp.Client{}}
+	return &SqlmapClient{token: token, endPoint: endPoint, port: port}
 }
 
 func (smc *SqlmapClient) NewTask() (string, error) {
@@ -74,13 +73,18 @@ func (smc *SqlmapClient) SetOptionGET(taskID string) error {
 	return nil
 }
 
-func (smc *SqlmapClient) SetOptionForPOST(taskID string, params []string) error {
+func (smc *SqlmapClient) SetOptionForPOST(taskID string, params map[string]string) error {
 	req := fasthttp.AcquireRequest()
 	defer fasthttp.ReleaseRequest(req)
-	for i := range params {
-		params[i] = params[i] + "=1"
+	stmtParams := make([]string, 0)
+	for key, value := range params {
+		if value == "" {
+			stmtParams = append(stmtParams, key+"=1")
+		} else {
+			stmtParams = append(stmtParams, key+"="+value)
+		}
 	}
-	dataPOST := strings.Join(params, "&")
+	dataPOST := strings.Join(stmtParams, "&")
 	optionPOSTBody := fmt.Sprintf(`{"method": "POST", "timeSec": 10, "threads": 5, "data": "%s"}`, dataPOST)
 	requestURL := fmt.Sprintf("%s:%s/option/%s/set", smc.endPoint, smc.port, taskID)
 	req.Header.Set("Content-Type", "application/json")
@@ -157,6 +161,32 @@ func (smc *SqlmapClient) CheckTaskStatus(taskID string) (string, error) {
 	return statusScanResponse.Status, nil
 }
 
-func (smc *SqlmapClient) GetData(taskID string) {
-
+func (smc *SqlmapClient) GetData(taskID string) (*ResultScanData, int, error) {
+	req := fasthttp.AcquireRequest()
+	defer fasthttp.ReleaseRequest(req)
+	req.Header.SetMethod("GET")
+	requestURL := fmt.Sprintf("%s:%s/scan/%s/data", smc.endPoint, smc.port, taskID)
+	req.SetRequestURI(requestURL)
+	resp := fasthttp.AcquireResponse()
+	defer fasthttp.ReleaseResponse(resp)
+	err := fasthttp.Do(req, resp)
+	if err != nil {
+		return nil, 0, err
+	}
+	if resp.StatusCode() != fasthttp.StatusOK {
+		return nil, 0, enums.ErrClientErrorGetResult
+	}
+	resultScanData := &ResultScanData{}
+	err = json.Unmarshal(resp.Body(), resultScanData)
+	if err != nil {
+		return nil, 0, err
+	}
+	if len(resultScanData.Data) > 0 {
+		for _, v := range resultScanData.Data {
+			if v.Type == 1 {
+				return resultScanData, enums.ResultExistVul, nil
+			}
+		}
+	}
+	return resultScanData, enums.ResultNotExistVul, nil
 }
