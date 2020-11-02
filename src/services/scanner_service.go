@@ -26,7 +26,7 @@ func (ss *ScannerService) ScanMultiTargets(targets []models.Target) {
 		}(targets[i])
 	}
 	wg.Wait()
-
+	close(resultChan)
 }
 
 func (ss *ScannerService) ScanTarget(target models.Target, resultChan chan *models.Vul, wg *sync.WaitGroup) error {
