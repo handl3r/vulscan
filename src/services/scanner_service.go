@@ -12,24 +12,34 @@ import (
 
 type ScannerService struct {
 	segmentRepository repositories.SegmentRepository
+	vulRepository     repositories.VulRepository
 	sqlmapClient      clients.SqlmapClient
 }
 
 func (ss *ScannerService) ScanMultiTargets(targets []models.Target) {
-
 	resultChan := make(chan *models.Vul)
 	var wg sync.WaitGroup
+	go func(segmentID string) {
+		for vul := range resultChan {
+			err := ss.vulRepository.Create(vul)
+			if err != nil {
+				log.Printf("Can not save a vul with error: %s", err)
+			}
+		}
+		log.Printf("Save all vul of segment: %s")
+	}(targets[0].SegmentID)
+
 	for i := range targets {
 		wg.Add(1)
 		go func(target models.Target) {
-			_ = ss.ScanTarget(target, resultChan, &wg)
+			_ = ss.scanTarget(target, resultChan, &wg)
 		}(targets[i])
 	}
 	wg.Wait()
 	close(resultChan)
 }
 
-func (ss *ScannerService) ScanTarget(target models.Target, resultChan chan *models.Vul, wg *sync.WaitGroup) error {
+func (ss *ScannerService) scanTarget(target models.Target, resultChan chan *models.Vul, wg *sync.WaitGroup) error {
 	defer wg.Done()
 	var err error
 	taskID, err := ss.sqlmapClient.NewTask()
