@@ -22,12 +22,11 @@ func (pr *ProjectRepository) GetByUserID(userID string) ([]*models.Project, erro
 	}
 	projects := make([]*models.Project, 0)
 	err := pr.db.Model(user).Association("UserID").Find(&projects)
-	// recheck latter if Find return ErrRecordNotFound
+	if err == gorm.ErrRecordNotFound {
+		return nil, enums.ErrEntityNotFound
+	}
 	if err != nil {
 		return nil, err
-	}
-	if pr.db.RowsAffected == 0 {
-		return nil, enums.ErrEntityNotFound
 	}
 	return projects, nil
 }

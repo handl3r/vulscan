@@ -18,7 +18,14 @@ func NewProjectController(appContext *ApplicationContext) *ProjectController {
 	}
 }
 
-func (p *ProjectController) GetAll(c *gin.Context) {
+// Get controller get project with full information by id
+func (p *ProjectController) Get(c *gin.Context) {
+	id := c.Param("id")
+	if len(id) == 0 {
+		p.DefaultBadRequest(c)
+		return
+	}
+	p.AppContext.ProjectService.GetByID()
 
 }
 
