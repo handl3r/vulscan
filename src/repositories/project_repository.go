@@ -61,10 +61,15 @@ func (pr *ProjectRepository) DeleteByID(id string) error {
 	return nil
 }
 
-func (pr *ProjectRepository) Update(project *models.Project) error {
-	err := pr.db.Model(&models.Project{}).Save(project).Error
+// Update Find by
+func (pr *ProjectRepository) Update(project *models.Project) (*models.Project, error) {
+	err := pr.db.Model(&models.Project{}).Updates(project).Error
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	existProject, err := pr.FindProjectByID(project.ID)
+	if err != nil {
+		return nil, err
+	}
+	return existProject, nil
 }

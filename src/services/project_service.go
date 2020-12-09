@@ -1,12 +1,12 @@
 package services
 
 import (
-	"errors"
-	"gorm.io/gorm"
 	"log"
 	"vulscan/src/enums"
 	"vulscan/src/models"
+	"vulscan/src/packages"
 	"vulscan/src/repositories"
+	"vulscan/src/validation"
 )
 
 type ProjectService struct {
@@ -14,8 +14,41 @@ type ProjectService struct {
 	segmentRepository *repositories.SegmentRepository
 }
 
-func NewProjectService(projectRepository *repositories.ProjectRepository, segmentRepository *repositories.SegmentRepository) *ProjectService {
+func NewProjectService(projectRepository *repositories.ProjectRepository, segmentRepository *repositories.SegmentRepository,
+) *ProjectService {
 	return &ProjectService{projectRepository: projectRepository, segmentRepository: segmentRepository}
+}
+
+// Create create a project
+func (ps *ProjectService) Create(pack *packages.CreateProjectPack, user *models.User,
+) (*models.Project, enums.Error) {
+	if !validation.ValidateCreateProjectPack(pack) {
+		return nil, enums.ErrInvalidRequest
+	}
+	projectModel := &models.Project{
+		Name:   pack.Name,
+		Domain: pack.Domain,
+		User:   user,
+	}
+	err := ps.projectRepository.Create(projectModel)
+	log.Printf("Can not create project for user %s with error: %s", user.ID, err)
+	if err != nil {
+		return nil, enums.ErrSystem
+	}
+	return projectModel, nil
+}
+
+func (ps *ProjectService) Update(pack *packages.UpdateProjectPack) (*models.Project, enums.Error) {
+	projectModel := &models.Project{
+		ID:   pack.ID,
+		Name: pack.Name,
+	}
+	updatedProject, err := ps.projectRepository.Update(projectModel)
+	if err != nil {
+		log.Printf("Can not update project by ID %s", projectModel.ID)
+		return nil, enums.ErrSystem
+	}
+	return updatedProject, nil
 }
 
 // GetAll get all project basic information of a user
@@ -47,10 +80,11 @@ func (ps *ProjectService) GetByID(projectID string) (*models.Project, enums.Erro
 	return project, nil
 }
 
+// TODO change to event bus when delete to finish stuff jobs in background
 func (ps *ProjectService) Delete(projectID string) enums.Error {
 	project, err := ps.projectRepository.FindProjectByID(projectID)
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return enums.ErrInvalidRequest
+	if err == enums.ErrEntityNotFound {
+		return enums.ErrResourceNotFound
 	}
 	if err != nil {
 		return enums.ErrSystem

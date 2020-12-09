@@ -4,6 +4,7 @@ package models
 type Project struct {
 	ID        string `json:"id" gorm:"primary_key, not null"`
 	VulNumber uint   `json:"vul_number"`
+	Name      string `json:"name"`
 	Domain    string `json:"domain" gorm:"not null"`
 
 	UserID string `json:"user_id" gorm:"not null"`
