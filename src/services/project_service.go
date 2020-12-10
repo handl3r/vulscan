@@ -3,10 +3,10 @@ package services
 import (
 	"log"
 	"time"
+	"vulscan/src/adapter/repositories"
 	"vulscan/src/enums"
 	"vulscan/src/models"
 	"vulscan/src/packages"
-	"vulscan/src/repositories"
 	"vulscan/src/validation"
 )
 

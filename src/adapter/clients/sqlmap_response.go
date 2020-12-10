@@ -17,9 +17,9 @@ type StatusScanResponse struct {
 }
 
 type ResultScanData struct {
-	Success bool     `json:"success"`
+	Success bool       `json:"success"`
 	Data    []DataScan `json:"data"`
-	Error   string   `json:"error"`
+	Error   string     `json:"error"`
 }
 
 type DataScan struct {

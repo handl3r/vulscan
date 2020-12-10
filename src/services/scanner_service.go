@@ -4,10 +4,10 @@ import (
 	"log"
 	"sync"
 	"time"
-	"vulscan/src/clients"
+	"vulscan/src/adapter/clients"
+	"vulscan/src/adapter/repositories"
 	"vulscan/src/enums"
 	"vulscan/src/models"
-	"vulscan/src/repositories"
 )
 
 type ScannerService struct {

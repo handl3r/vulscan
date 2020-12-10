@@ -1,9 +1,9 @@
 package services
 
 import (
+	"vulscan/src/adapter/repositories"
 	"vulscan/src/enums"
 	"vulscan/src/models"
-	"vulscan/src/repositories"
 )
 
 type UserService struct {

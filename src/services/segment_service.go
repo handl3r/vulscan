@@ -2,9 +2,9 @@ package services
 
 import (
 	"log"
+	"vulscan/src/adapter/repositories"
 	"vulscan/src/enums"
 	"vulscan/src/models"
-	"vulscan/src/repositories"
 )
 
 type SegmentService struct {
