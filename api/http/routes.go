@@ -26,5 +26,6 @@ func NewRouter(controllerManager *ControllerManager) *gin.Engine {
 		GET("/:id", controllerManager.SegmentController.Get).
 		DELETE("/:id", controllerManager.SegmentController.Delete)
 
+	router.Group("/api/v1/discover", controllerManager.ProjectController.Discover)
 	return router
 }
