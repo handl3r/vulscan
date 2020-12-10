@@ -1,11 +1,13 @@
 package configs
 
 type Config struct {
-	DBHost     string
-	DBPort     string
-	DBUser     string
-	DBPassword string
-	DBName     string
+	DBHost           string
+	DBPort           string
+	DBUser           string
+	DBPassword       string
+	DBName           string
+	SQLMapServerHost string
+	SQLMapServerPort string
 }
 
 var Common *Config
@@ -16,10 +18,12 @@ func Get() *Config {
 
 func LoadConfig() {
 	Common = &Config{
-		DBHost:     GetStringWithDefault("DB_HOST", "0.0.0.0"),
-		DBPort:     GetStringWithDefault("DB_PORT", "3306"),
-		DBUser:     GetString("DB_USER"),
-		DBPassword: GetString("DB_PASSWORD"),
-		DBName:     GetString("DB_NAME"),
+		DBHost:           GetStringWithDefault("DB_HOST", "0.0.0.0"),
+		DBPort:           GetStringWithDefault("DB_PORT", "3306"),
+		DBUser:           GetString("DB_USER"),
+		DBPassword:       GetString("DB_PASSWORD"),
+		DBName:           GetString("DB_NAME"),
+		SQLMapServerHost: GetStringWithDefault("SQLMAP_SERVER_HOST", "0.0.0.0"),
+		SQLMapServerPort: GetStringWithDefault("SQLMAP_SERVER_PORT", "9750"),
 	}
 }
