@@ -152,7 +152,7 @@ func (ps *ProjectService) Crawl(discoverProjectPack *packages.DiscoverProjectPac
 		log.Printf("Can not crawl project %s, domain %s with error: %s", project.ID, project.Domain, err)
 		return nil, enums.ErrSystem
 	}
-	for i, _ := range targets {
+	for i := range targets {
 		targets[i].SegmentID = segment.ID
 	}
 	err = ps.targetRepository.SaveTargets(targets)

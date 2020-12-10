@@ -30,7 +30,7 @@ func (t *TargetRepository) GetAllBySegmentID(segmentID string) ([]models.Target,
 }
 
 func (t *TargetRepository) SaveTargets(targets []models.Target) error {
-	for i, _ := range targets {
+	for i := range targets {
 		targets[i].ID = uuid.New().String()
 	}
 	err := t.db.Create(&targets).Error
