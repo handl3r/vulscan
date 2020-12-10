@@ -60,7 +60,12 @@ var ErrInvalidRequest = NewHttpCustomError(
 var ErrUnauthorized = NewHttpCustomError(
 	http.StatusUnauthorized,
 	"unauthorized",
-	"Unauthorized access to this resource",
+	"Unauthorized",
+)
+var Forbidden = NewHttpCustomError(
+	http.StatusForbidden,
+	"forbidden",
+	"Forbidden",
 )
 var ErrSystem = NewHttpCustomError(
 	http.StatusInternalServerError,
@@ -71,4 +76,4 @@ var ErrNoResources = NewHttpCustomError(
 	http.StatusOK,
 	"no_resources",
 	"Create your first resource",
-	)
+)

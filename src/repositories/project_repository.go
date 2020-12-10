@@ -60,15 +60,14 @@ func (pr *ProjectRepository) DeleteByID(id string) error {
 	return nil
 }
 
-// Update Find by
 func (pr *ProjectRepository) Update(project *models.Project) (*models.Project, error) {
 	err := pr.db.Model(&models.Project{}).Updates(project).Error
 	if err != nil {
 		return nil, err
 	}
-	existProject, err := pr.FindProjectByID(project.ID)
+	updatedProject, err := pr.FindProjectByID(project.ID)
 	if err != nil {
 		return nil, err
 	}
-	return existProject, nil
+	return updatedProject, nil
 }

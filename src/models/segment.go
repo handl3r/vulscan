@@ -15,5 +15,7 @@ type Segment struct {
 	ProjectID string   `json:"project_id" gorm:"not null"`
 	Project   *Project `json:"project"`
 
+	UserID string `json:"user_id"`
+
 	Vuls []Vul `json:"vuls"`
 }

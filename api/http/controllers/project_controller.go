@@ -18,15 +18,24 @@ func NewProjectController(appContext *ApplicationContext) *ProjectController {
 	}
 }
 
-// Get controller get project with full information by id
+// Get controller get project with all segments by id
 func (p *ProjectController) Get(c *gin.Context) {
 	id := c.Param("id")
 	if len(id) == 0 {
 		p.DefaultBadRequest(c)
 		return
 	}
-	p.AppContext.ProjectService.GetByID()
-
+	project, err := p.AppContext.ProjectService.GetByID(id, p.GetCurrentUser(c))
+	if err != nil {
+		c.JSON(err.GetHttpCode(), err.GetMessage())
+		return
+	}
+	responseData, jsonErr := json.Marshal(project)
+	if jsonErr != nil {
+		p.ErrorInternalServer(c)
+		return
+	}
+	p.Success(c, responseData)
 }
 
 // Create controller create project
@@ -61,16 +70,7 @@ func (p *ProjectController) Update(c *gin.Context) {
 		p.DefaultBadRequest(c)
 		return
 	}
-	existProject, err := p.AppContext.ProjectService.GetByID(updateProjectPack.ID)
-	if err != nil {
-		c.JSON(err.GetHttpCode(), err.GetMessage())
-		return
-	}
-	if existProject.User.ID != p.GetCurrentUser(c).ID {
-		p.Unauthorized(c)
-		return
-	}
-	updatedProject, err := p.AppContext.ProjectService.Update(&updateProjectPack)
+	updatedProject, err := p.AppContext.ProjectService.Update(&updateProjectPack, p.GetCurrentUser(c))
 	if err != nil {
 		c.JSON(err.GetHttpCode(), err.GetMessage())
 	}
@@ -88,7 +88,7 @@ func (p *ProjectController) Delete(c *gin.Context) {
 	if len(id) == 0 {
 		p.DefaultBadRequest(c)
 	}
-	err := p.AppContext.ProjectService.Delete(id)
+	err := p.AppContext.ProjectService.DeleteByID(id, p.GetCurrentUser(c))
 	if err != nil {
 		c.JSON(err.GetHttpCode(), err.GetMessage())
 		return

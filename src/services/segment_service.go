@@ -1,6 +1,7 @@
 package services
 
 import (
+	"log"
 	"vulscan/src/enums"
 	"vulscan/src/models"
 	"vulscan/src/repositories"
@@ -16,25 +17,52 @@ func NewSegmentService(segmentRepository repositories.SegmentRepository, targetR
 	return &SegmentService{segmentRepository: segmentRepository, targetRepository: targetRepository, vulRepository: vulRepository}
 }
 
-func (ss *SegmentService) GetByID(id string) (*models.Segment, error) {
-	segment, err := ss.segmentRepository.FindByID(id)
+// GetByID get segment with all information by ID
+func (s *SegmentService) GetByID(id string, currentUser *models.User) (*models.Segment, enums.Error) {
+	segment, err := s.segmentRepository.FindByID(id)
 	if err == enums.ErrEntityNotFound {
 		return nil, enums.ErrResourceNotFound
 	}
 	if err != nil {
-		return nil, err
+		return nil, enums.ErrSystem
 	}
-	targets, err := ss.targetRepository.GetAllBySegmentID(segment.ID)
-	if err != nil {
-		return segment, err
+	if segment.UserID != currentUser.ID {
+		return nil, enums.ErrResourceNotFound
+	}
+	targets, err := s.targetRepository.GetAllBySegmentID(segment.ID)
+	if err != nil && err != enums.ErrEntityNotFound {
+		return segment, enums.ErrSystem
 	}
 	segment.Targets = targets
-	vuls, err := ss.vulRepository.GetBySegmentID(segment.ID)
-	if err != nil {
-		return segment, err
+	vuls, err := s.vulRepository.GetBySegmentID(segment.ID)
+	if err != nil && err != enums.ErrEntityNotFound {
+		return segment, enums.ErrSystem
 	}
 	segment.Vuls = vuls
 	return segment, nil
 }
 
-//func (ss *SegmentService) Create(segmentPack )
+// DeleteByID delete a segment by ID
+func (s *SegmentService) DeleteByID(id string, currentUser *models.User) enums.Error {
+	segment, err := s.segmentRepository.FindByID(id)
+	if err == enums.ErrEntityNotFound {
+		return enums.ErrResourceNotFound
+	}
+	if err != nil {
+		return enums.ErrSystem
+	}
+	if segment.UserID != currentUser.ID {
+		return enums.ErrResourceNotFound
+	}
+	err = s.segmentRepository.DeleteByID(id)
+	if err != nil {
+		return enums.ErrSystem
+	}
+	go func() {
+		err := s.vulRepository.DeleteSegmentVuls(id)
+		if err != nil {
+			log.Printf("[E] Can not delete vuls in segment %s with error: %s", segment.ID, err)
+		}
+	}()
+	return nil
+}

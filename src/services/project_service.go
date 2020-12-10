@@ -20,7 +20,7 @@ func NewProjectService(projectRepository *repositories.ProjectRepository, segmen
 }
 
 // Create create a project
-func (ps *ProjectService) Create(pack *packages.CreateProjectPack, user *models.User,
+func (ps *ProjectService) Create(pack *packages.CreateProjectPack, currentUser *models.User,
 ) (*models.Project, enums.Error) {
 	if !validation.ValidateCreateProjectPack(pack) {
 		return nil, enums.ErrInvalidRequest
@@ -28,20 +28,30 @@ func (ps *ProjectService) Create(pack *packages.CreateProjectPack, user *models.
 	projectModel := &models.Project{
 		Name:   pack.Name,
 		Domain: pack.Domain,
-		User:   user,
+		UserID: currentUser.ID,
 	}
 	err := ps.projectRepository.Create(projectModel)
-	log.Printf("Can not create project for user %s with error: %s", user.ID, err)
+	log.Printf("Can not create project for currentUser %s with error: %s", currentUser.ID, err)
 	if err != nil {
 		return nil, enums.ErrSystem
 	}
 	return projectModel, nil
 }
 
-func (ps *ProjectService) Update(pack *packages.UpdateProjectPack) (*models.Project, enums.Error) {
+func (ps *ProjectService) Update(pack *packages.UpdateProjectPack, currentUser *models.User) (*models.Project, enums.Error) {
 	projectModel := &models.Project{
 		ID:   pack.ID,
 		Name: pack.Name,
+	}
+	existedProject, err := ps.projectRepository.FindProjectByID(pack.ID)
+	if err == enums.ErrEntityNotFound {
+		return nil, enums.ErrResourceNotFound
+	}
+	if err != nil {
+		return nil, enums.ErrSystem
+	}
+	if existedProject.UserID != currentUser.ID {
+		return nil, enums.ErrResourceNotFound
 	}
 	updatedProject, err := ps.projectRepository.Update(projectModel)
 	if err != nil {
@@ -64,13 +74,16 @@ func (ps *ProjectService) GetAll(userID string) ([]*models.Project, enums.Error)
 }
 
 // GetByID get project information and all segments belongs to it
-func (ps *ProjectService) GetByID(projectID string) (*models.Project, enums.Error) {
+func (ps *ProjectService) GetByID(projectID string, currentUser *models.User) (*models.Project, enums.Error) {
 	project, err := ps.projectRepository.FindProjectByID(projectID)
 	if err == enums.ErrEntityNotFound {
 		return nil, enums.ErrResourceNotFound
 	}
 	if err != nil {
 		return nil, enums.ErrSystem
+	}
+	if project.UserID != currentUser.ID {
+		return nil, enums.ErrResourceNotFound
 	}
 	segments, err := ps.segmentRepository.GetByProjectID(projectID)
 	if err != nil {
@@ -81,7 +94,7 @@ func (ps *ProjectService) GetByID(projectID string) (*models.Project, enums.Erro
 }
 
 // TODO change to event bus when delete to finish stuff jobs in background
-func (ps *ProjectService) Delete(projectID string) enums.Error {
+func (ps *ProjectService) DeleteByID(projectID string, currentUser *models.User) enums.Error {
 	project, err := ps.projectRepository.FindProjectByID(projectID)
 	if err == enums.ErrEntityNotFound {
 		return enums.ErrResourceNotFound
@@ -89,9 +102,14 @@ func (ps *ProjectService) Delete(projectID string) enums.Error {
 	if err != nil {
 		return enums.ErrSystem
 	}
-	err = ps.segmentRepository.DeleteProjectSegments(project.ID)
-	if err != nil {
-		log.Printf("[E] Can not delete segment in project: %s", err)
+	if project.UserID != currentUser.ID {
+		return enums.ErrResourceNotFound
 	}
+	go func() {
+		err = ps.segmentRepository.DeleteProjectSegments(project.ID)
+		if err != nil {
+			log.Printf("[E] Can not delete segment in project %s with error: %s", project.ID, err)
+		}
+	}()
 	return nil
 }

@@ -31,7 +31,11 @@ func (b *baseController) Unauthorized(c *gin.Context) {
 	c.JSON(http.StatusUnauthorized, "Unauthorized")
 }
 
-func(b *baseController) NoContent(c *gin.Context) {
+func (b *baseController) Forbidden(c *gin.Context) {
+	c.JSON(http.StatusForbidden, "No permission to access this resource")
+}
+
+func (b *baseController) NoContent(c *gin.Context) {
 	c.JSON(http.StatusNoContent, "")
 }
 

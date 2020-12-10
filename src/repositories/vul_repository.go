@@ -31,7 +31,10 @@ func (vp *VulRepository) FindByID(id string) (*models.Vul, error) {
 func (vp *VulRepository) GetBySegmentID(segmentID string) ([]models.Vul, error) {
 	segment := &models.Segment{ID: segmentID}
 	vuls := make([]models.Vul, 0)
-	err := vp.db.Model(segment).Association("Targets").Find(vuls)
+	err := vp.db.Model(segment).Association("SegmentID").Find(vuls)
+	if err == gorm.ErrRecordNotFound {
+		return nil, enums.ErrEntityNotFound
+	}
 	if err != nil {
 		return nil, err
 	}
