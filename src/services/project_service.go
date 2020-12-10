@@ -2,6 +2,7 @@ package services
 
 import (
 	"log"
+	"time"
 	"vulscan/src/enums"
 	"vulscan/src/models"
 	"vulscan/src/packages"
@@ -12,11 +13,19 @@ import (
 type ProjectService struct {
 	projectRepository *repositories.ProjectRepository
 	segmentRepository *repositories.SegmentRepository
+	targetRepository  *repositories.TargetRepository
+	crawlerService    *CrawlerService
 }
 
 func NewProjectService(projectRepository *repositories.ProjectRepository, segmentRepository *repositories.SegmentRepository,
+	targetRepository *repositories.TargetRepository, crawlerService *CrawlerService,
 ) *ProjectService {
-	return &ProjectService{projectRepository: projectRepository, segmentRepository: segmentRepository}
+	return &ProjectService{
+		projectRepository: projectRepository,
+		segmentRepository: segmentRepository,
+		targetRepository:  targetRepository,
+		crawlerService:    crawlerService,
+	}
 }
 
 // Create create a project
@@ -112,4 +121,45 @@ func (ps *ProjectService) DeleteByID(projectID string, currentUser *models.User)
 		}
 	}()
 	return nil
+}
+
+// TODO change to response 200 after create segment and crawl in background
+func (ps *ProjectService) Crawl(discoverProjectPack *packages.DiscoverProjectPack, currentUser *models.User) (*models.Segment, enums.Error) {
+	project, err := ps.projectRepository.FindProjectByID(discoverProjectPack.ProjectID)
+	if err == enums.ErrEntityNotFound {
+		return nil, enums.ErrResourceNotFound
+	}
+	if err != nil {
+		return nil, enums.ErrSystem
+	}
+	if project.UserID != currentUser.ID {
+		return nil, enums.ErrResourceNotFound
+	}
+	now := time.Now()
+	segment := &models.Segment{
+		IsScanned:  false,
+		IsCrawling: true,
+		CreatedAt:  now,
+		ProjectID:  project.ID,
+		UserID:     currentUser.ID,
+	}
+	err = ps.segmentRepository.Create(segment)
+	if err != nil {
+		return nil, enums.ErrSystem
+	}
+	targets, err := ps.crawlerService.DiscoverURLs(project.Domain)
+	if err != nil {
+		log.Printf("Can not crawl project %s, domain %s with error: %s", project.ID, project.Domain, err)
+		return nil, enums.ErrSystem
+	}
+	for i, _ := range targets {
+		targets[i].SegmentID = segment.ID
+	}
+	err = ps.targetRepository.SaveTargets(targets)
+	if err != nil {
+		log.Printf("Can not save targers of segment %s in project %s with error: %s", segment.ID, project.ID, err)
+		return segment, enums.ErrSystem
+	}
+	segment.Targets = targets
+	return segment, nil
 }

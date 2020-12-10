@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"vulscan/src/enums"
 	"vulscan/src/models"
@@ -16,9 +17,9 @@ func NewTargetRepository(baseRepository baseRepository) *TargetRepository {
 	}
 }
 
-func (tr *TargetRepository) GetAllBySegmentID(segmentID string) ([]models.Target, error) {
+func (t *TargetRepository) GetAllBySegmentID(segmentID string) ([]models.Target, error) {
 	targets := make([]models.Target, 0)
-	err := tr.db.Model(&models.Target{}).Where("segment_id = ?", segmentID).Find(&targets).Error
+	err := t.db.Model(&models.Target{}).Where("segment_id = ?", segmentID).Find(&targets).Error
 	if err == gorm.ErrRecordNotFound {
 		return nil, enums.ErrEntityNotFound
 	}
@@ -26,4 +27,15 @@ func (tr *TargetRepository) GetAllBySegmentID(segmentID string) ([]models.Target
 		return nil, err
 	}
 	return targets, nil
+}
+
+func (t *TargetRepository) SaveTargets(targets []models.Target) error {
+	for i, _ := range targets {
+		targets[i].ID = uuid.New().String()
+	}
+	err := t.db.Create(&targets).Error
+	if err != nil {
+		return err
+	}
+	return nil
 }

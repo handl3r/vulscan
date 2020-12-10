@@ -3,13 +3,13 @@ package models
 import "strings"
 
 type Target struct {
-	ID        string `json:"id" gorm:"primary key, not null"`
-	VulID     string `json:"vul_id"`
-	URL       string `json:"url"`
-	Method    int    `json:"method"`
-	Params    string `json:"params"` // separate by '*|*' ex: ["p1", "p2", "p3=2"]
-	SegmentID string `json:"segment_id"`
-	Segment   *Segment
+	ID        string   `json:"id" gorm:"primary key, not null"`
+	VulID     string   `json:"vul_id"`
+	URL       string   `json:"url"`
+	Method    int      `json:"method"`
+	Params    string   `json:"params"` // separate by '*|*' ex: ["p1", "p2", "p3=2"]
+	SegmentID string   `json:"segment_id"`
+	Segment   *Segment `json:"segment"`
 }
 
 func (t Target) GetMapParams() map[string]string {

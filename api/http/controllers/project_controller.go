@@ -95,3 +95,22 @@ func (p *ProjectController) Delete(c *gin.Context) {
 	}
 	p.NoContent(c)
 }
+
+func (p *ProjectController) Discover(c *gin.Context) {
+	var discoverProjectPack *packages.DiscoverProjectPack
+	if err := c.ShouldBindJSON(discoverProjectPack); err != nil {
+		p.DefaultBadRequest(c)
+		return
+	}
+	segment, err := p.AppContext.ProjectService.Crawl(discoverProjectPack, p.GetCurrentUser(c))
+	if err != nil {
+		c.JSON(err.GetHttpCode(), err.GetMessage())
+		return
+	}
+	responseData, jsonErr := json.Marshal(segment)
+	if jsonErr != nil {
+		p.ErrorInternalServer(c)
+		return
+	}
+	p.Success(c, responseData)
+}
