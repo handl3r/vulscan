@@ -17,7 +17,7 @@ func NewCrawlerDecorator(chromeDPCrawler *ChromeDPCrawler, collyCrawler *CollyCr
 	}
 }
 
-func (c *CrawlerDecorator) CrawlURLs(domain string, typeLoadSite int, maxDepth int) ([]models.Target, error) {
+func (c *CrawlerDecorator) CrawlURLs(domain string, typeLoadSite string, maxDepth int) ([]models.Target, error) {
 	targets := make([]models.Target, 0)
 	var err error
 	switch typeLoadSite {

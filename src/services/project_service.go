@@ -147,19 +147,8 @@ func (ps *ProjectService) Crawl(discoverProjectPack *packages.DiscoverProjectPac
 	if err != nil {
 		return nil, enums.ErrSystem
 	}
-	targets, err := ps.crawlerService.DiscoverURLs(project.Domain)
-	if err != nil {
-		log.Printf("Can not crawl project %s, domain %s with error: %s", project.ID, project.Domain, err)
-		return nil, enums.ErrSystem
-	}
-	for i := range targets {
-		targets[i].SegmentID = segment.ID
-	}
-	err = ps.targetRepository.SaveTargets(targets)
-	if err != nil {
-		log.Printf("Can not save targers of segment %s in project %s with error: %s", segment.ID, project.ID, err)
-		return segment, enums.ErrSystem
-	}
-	segment.Targets = targets
+	go func() {
+		_, _ = ps.crawlerService.DiscoverURLsAndSave(project.Domain, discoverProjectPack.IsLoadByJS, segment.ID, project.ID)
+	}()
 	return segment, nil
 }

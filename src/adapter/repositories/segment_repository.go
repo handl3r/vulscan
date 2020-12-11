@@ -48,7 +48,7 @@ func (sp *SegmentRepository) Create(segment *models.Segment) error {
 }
 
 func (sp *SegmentRepository) Update(segment *models.Segment) error {
-	err := sp.db.Model(&models.Segment{}).Save(segment).Error
+	err := sp.db.Model(&models.Segment{}).Updates(segment).Error
 	if err != nil {
 		return err
 	}
