@@ -3,6 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
+	"vulscan/api/http"
 	"vulscan/src/packages"
 )
 
@@ -10,7 +11,7 @@ type ProjectController struct {
 	baseController
 }
 
-func NewProjectController(appContext *ApplicationContext) *ProjectController {
+func NewProjectController(appContext *http.ApplicationContext) *ProjectController {
 	return &ProjectController{
 		baseController{
 			AppContext: appContext,

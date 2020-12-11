@@ -8,6 +8,7 @@ type Config struct {
 	DBName           string
 	SQLMapServerHost string
 	SQLMapServerPort string
+	AuthSecretKet    string
 }
 
 var Common *Config
@@ -25,5 +26,6 @@ func LoadConfig() {
 		DBName:           GetString("DB_NAME"),
 		SQLMapServerHost: GetStringWithDefault("SQLMAP_SERVER_HOST", "0.0.0.0"),
 		SQLMapServerPort: GetStringWithDefault("SQLMAP_SERVER_PORT", "8775"),
+		AuthSecretKet:    GetString("AUTH_SECRET_KEY"),
 	}
 }

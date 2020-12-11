@@ -3,13 +3,14 @@ package controllers
 import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
+	"vulscan/api/http"
 )
 
 type SegmentController struct {
 	baseController
 }
 
-func NewSegmentController(appContext *ApplicationContext) *SegmentController {
+func NewSegmentController(appContext *http.ApplicationContext) *SegmentController {
 	return &SegmentController{
 		baseController{
 			AppContext: appContext,

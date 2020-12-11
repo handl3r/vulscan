@@ -3,11 +3,12 @@ package controllers
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
+	http2 "vulscan/api/http"
 	"vulscan/src/models"
 )
 
 type baseController struct {
-	AppContext *ApplicationContext
+	AppContext *http2.ApplicationContext
 }
 
 func (b *baseController) Success(c *gin.Context, data interface{}) {

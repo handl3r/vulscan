@@ -8,7 +8,6 @@ import (
 	"vulscan/src/enums"
 	"vulscan/src/models"
 	"vulscan/src/packages"
-	"vulscan/src/validation"
 )
 
 type ProjectService struct {
@@ -32,7 +31,7 @@ func NewProjectService(projectRepository *repositories.ProjectRepository, segmen
 // Create create a project
 func (ps *ProjectService) Create(pack *packages.CreateProjectPack, currentUser *models.User,
 ) (*models.Project, enums.Error) {
-	if !validation.ValidateCreateProjectPack(pack) {
+	if !packages.ValidateCreateProjectPack(pack) {
 		return nil, enums.ErrInvalidRequest
 	}
 	projectModel := &models.Project{

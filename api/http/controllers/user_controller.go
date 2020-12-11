@@ -3,13 +3,14 @@ package controllers
 import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
+	"vulscan/api/http"
 )
 
 type UserController struct {
 	baseController
 }
 
-func NewUserController(appContext *ApplicationContext) *UserController {
+func NewUserController(appContext *http.ApplicationContext) *UserController {
 	return &UserController{
 		baseController{
 			AppContext: appContext,

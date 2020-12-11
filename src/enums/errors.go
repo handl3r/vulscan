@@ -77,3 +77,9 @@ var ErrNoResources = NewHttpCustomError(
 	"no_resources",
 	"Create your first resource",
 )
+
+var ErrUnauthenticated = NewHttpCustomError(
+	http.StatusUnauthorized,
+	"unauthenticated",
+	"Check your login information",
+)

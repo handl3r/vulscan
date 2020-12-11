@@ -16,6 +16,26 @@ func NewUserRepository(baseRepository baseRepository) *UserRepository {
 	return &UserRepository{baseRepository: baseRepository}
 }
 
+func NewUserRepositoryWithDbConnection(db *gorm.DB) *UserRepository {
+	return &UserRepository{
+		baseRepository{
+			db: db,
+		},
+	}
+}
+
+func (up *UserRepository) FindByID(id string) (*models.User, error) {
+	user := &models.User{}
+	err := up.db.Model(&models.User{}).Where("id = ?", id).First(&user).Error
+	if err == gorm.ErrRecordNotFound {
+		return nil, enums.ErrEntityNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
 func (up *UserRepository) FindByEmail(email string) (*models.User, error) {
 	user := &models.User{}
 	err := up.db.Model(&models.User{}).Where("email = ?", email).First(&user).Error
