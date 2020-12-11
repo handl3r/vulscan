@@ -14,6 +14,10 @@ import (
 type CollyCrawler struct {
 }
 
+func NewCollyCrawler() *CollyCrawler {
+	return &CollyCrawler{}
+}
+
 func (c *CollyCrawler) CrawlURLs(domain *url.URL, maxDepth int) ([]models.Target, error) {
 	targets := make([]models.Target, 0)
 	existedMapTargets := make(map[string]bool)
