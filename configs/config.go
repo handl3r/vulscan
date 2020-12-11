@@ -24,6 +24,6 @@ func LoadConfig() {
 		DBPassword:       GetString("DB_PASSWORD"),
 		DBName:           GetString("DB_NAME"),
 		SQLMapServerHost: GetStringWithDefault("SQLMAP_SERVER_HOST", "0.0.0.0"),
-		SQLMapServerPort: GetStringWithDefault("SQLMAP_SERVER_PORT", "9750"),
+		SQLMapServerPort: GetStringWithDefault("SQLMAP_SERVER_PORT", "8775"),
 	}
 }

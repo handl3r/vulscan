@@ -1,7 +1,10 @@
 package ports
 
-import "vulscan/src/models"
+import (
+	"net/url"
+	"vulscan/src/models"
+)
 
 type CrawlerPort interface {
-	CrawlURLs(domain string, typeLoadSite string, maxDepth int) ([]models.Target, error)
+	CrawlURLs(domain *url.URL, typeLoadSite string, maxDepth int) ([]models.Target, error)
 }

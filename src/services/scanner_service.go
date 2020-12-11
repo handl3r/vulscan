@@ -2,6 +2,7 @@ package services
 
 import (
 	"log"
+	"net/http"
 	"sync"
 	"time"
 	"vulscan/src/adapter/clients"
@@ -48,9 +49,9 @@ func (ss *ScannerService) scanTarget(target models.Target, resultChan chan *mode
 		return enums.ErrSystem
 	}
 	switch target.Method {
-	case enums.GET:
+	case http.MethodGet:
 		err = ss.sqlmapClient.SetOptionGET(taskID)
-	case enums.POST:
+	case http.MethodPost:
 		mapParams := target.GetMapParams()
 		err = ss.sqlmapClient.SetOptionForPOST(taskID, mapParams)
 	}
@@ -58,7 +59,7 @@ func (ss *ScannerService) scanTarget(target models.Target, resultChan chan *mode
 		log.Printf("Error when scan [TargetID] %s [Error] %s", target.ID, err)
 		return enums.ErrSystem
 	}
-	err = ss.sqlmapClient.StartScan(taskID, target.URL)
+	err = ss.sqlmapClient.StartScan(taskID, target.URL.String())
 	if err != nil {
 		log.Printf("Error when scan [TargetID] %s [Error] %s", target.ID, err)
 		return enums.ErrSystem

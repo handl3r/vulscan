@@ -2,6 +2,7 @@ package services
 
 import (
 	"log"
+	url2 "net/url"
 	"time"
 	"vulscan/src/adapter/repositories"
 	"vulscan/src/enums"
@@ -148,7 +149,13 @@ func (ps *ProjectService) Crawl(discoverProjectPack *packages.DiscoverProjectPac
 		return nil, enums.ErrSystem
 	}
 	go func() {
-		_, _ = ps.crawlerService.DiscoverURLsAndSave(project.Domain, discoverProjectPack.IsLoadByJS, segment.ID, project.ID)
+		url, err := url2.Parse(project.Domain)
+		if err != nil {
+			log.Printf("Can not parse domain %s of project %s to prepare for discover urls with error: %s",
+				project.Domain, project.ID, err)
+			return
+		}
+		_, _ = ps.crawlerService.DiscoverURLsAndSave(url, discoverProjectPack.IsLoadByJS, segment.ID, project.ID)
 	}()
 	return segment, nil
 }

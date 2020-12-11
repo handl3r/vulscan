@@ -30,35 +30,73 @@
 ////	}
 ////}
 
+//package main
+//
+//import (
+//	"fmt"
+//
+//	"github.com/gocolly/colly"
+//)
+//
+//func main() {
+//	// Instantiate default collector
+//	c := colly.NewCollector(
+//		colly.AllowedDomains("handl3r.netlify.app"),
+//		colly.MaxDepth(1),
+//	)
+//
+//	// On every a element which has href attribute call callback
+//	c.OnHTML("a[href]", func(e *colly.HTMLElement) {
+//		link := e.Attr("href")
+//		// Print link
+//		fmt.Printf("Link found: %q -> %s\n", e.Text, link)
+//		// Visit link found on page
+//		// Only those links are visited which are in AllowedDomains
+//		c.Visit(e.Request.AbsoluteURL(link))
+//	})
+//
+//	// Before making a request print "Visiting ..."
+//	c.OnRequest(func(r *colly.Request) {
+//		fmt.Println("Visiting", r.URL.String())
+//	})
+//
+//	c.Visit("https://handl3r.netlify.app")
+//}
+
 package main
 
 import (
 	"fmt"
-
-	"github.com/gocolly/colly"
+	"net"
+	"net/url"
 )
 
 func main() {
-	// Instantiate default collector
-	c := colly.NewCollector(
-		colly.AllowedDomains("handl3r.netlify.app"),
-		colly.MaxDepth(1),
-	)
 
-	// On every a element which has href attribute call callback
-	c.OnHTML("a[href]", func(e *colly.HTMLElement) {
-		link := e.Attr("href")
-		// Print link
-		fmt.Printf("Link found: %q -> %s\n", e.Text, link)
-		// Visit link found on page
-		// Only those links are visited which are in AllowedDomains
-		c.Visit(e.Request.AbsoluteURL(link))
-	})
+	s := "postgres://user:pass@host.com:40/path?k=v,1&t=2#f"
 
-	// Before making a request print "Visiting ..."
-	c.OnRequest(func(r *colly.Request) {
-		fmt.Println("Visiting", r.URL.String())
-	})
+	u, err := url.Parse(s)
+	if err != nil {
+		panic(err)
+	}
 
-	c.Visit("https://handl3r.netlify.app")
+	fmt.Println("scheme: ", u.Scheme)
+
+	fmt.Println("user: ", u.User)
+	fmt.Println("username: ", u.User.Username())
+	p, _ := u.User.Password()
+	fmt.Println("password: ", p)
+
+	fmt.Println("host: ", u.Host)
+	host, port, _ := net.SplitHostPort(u.Host)
+	fmt.Println("host: ", host)
+	fmt.Println("port: ", port)
+
+	fmt.Println("path", u.Path)
+	fmt.Println(u.Fragment)
+
+	fmt.Println(u.RawQuery)
+	m, i := url.ParseQuery(u.RawQuery)
+	fmt.Println(m, i)
+	fmt.Println(m["k"][0])
 }

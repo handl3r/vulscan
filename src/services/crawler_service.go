@@ -2,6 +2,7 @@ package services
 
 import (
 	"log"
+	"net/url"
 	"vulscan/src/adapter/repositories"
 	"vulscan/src/enums"
 	"vulscan/src/models"
@@ -22,7 +23,7 @@ func NewCrawlerService(crawlerDriver ports.CrawlerPort) *CrawlerService {
 	}
 }
 
-func (c *CrawlerService) DiscoverURLs(domain string, typeLoadSite string) ([]models.Target, enums.Error) {
+func (c *CrawlerService) DiscoverURLs(domain *url.URL, typeLoadSite string) ([]models.Target, enums.Error) {
 	targets, err := c.crawlerDriver.CrawlURLs(domain, typeLoadSite, enums.DefaultMaxDepth)
 	if err != nil {
 		return nil, enums.ErrSystem
@@ -30,7 +31,7 @@ func (c *CrawlerService) DiscoverURLs(domain string, typeLoadSite string) ([]mod
 	return targets, nil
 }
 
-func (c *CrawlerService) DiscoverURLsAndSave(domain, typeLoadSite, segmentID, projectID string) ([]models.Target, enums.Error) {
+func (c *CrawlerService) DiscoverURLsAndSave(domain *url.URL, typeLoadSite, segmentID, projectID string) ([]models.Target, enums.Error) {
 	targets, err := c.DiscoverURLs(domain, typeLoadSite)
 	if err != nil {
 		log.Printf("Can not crawl project %s, domain %s with error: %s", projectID, domain, err)

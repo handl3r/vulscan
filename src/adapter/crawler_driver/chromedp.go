@@ -1,6 +1,7 @@
 package crawler_driver
 
 import (
+	"net/url"
 	"vulscan/src/models"
 )
 
@@ -9,7 +10,7 @@ type ChromeDPCrawler struct {
 
 }
 
-func (c ChromeDPCrawler) CrawlURLs(domain string, maxDepth int) ([]models.Target, error) {
+func (c ChromeDPCrawler) CrawlURLs(domain *url.URL, maxDepth int) ([]models.Target, error) {
 	panic("implement me")
 }
 
