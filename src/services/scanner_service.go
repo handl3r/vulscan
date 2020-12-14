@@ -17,6 +17,17 @@ type ScannerService struct {
 	sqlmapClient      clients.SqlmapClient
 }
 
+func NewScannerService(
+	segmentRepository repositories.SegmentRepository,
+	vulRepository repositories.VulRepository,
+	sqlMapClient clients.SqlmapClient) *ScannerService {
+	return &ScannerService{
+		segmentRepository: segmentRepository,
+		vulRepository:     vulRepository,
+		sqlmapClient:      sqlMapClient,
+	}
+}
+
 func (ss *ScannerService) ScanMultiTargets(targets []models.Target) {
 	resultChan := make(chan *models.Vul)
 	var wg sync.WaitGroup
@@ -59,7 +70,7 @@ func (ss *ScannerService) scanTarget(target models.Target, resultChan chan *mode
 		log.Printf("Error when scan [TargetID] %s [Error] %s", target.ID, err)
 		return enums.ErrSystem
 	}
-	err = ss.sqlmapClient.StartScan(taskID, target.URL.String())
+	err = ss.sqlmapClient.StartScan(taskID, target.RawURL)
 	if err != nil {
 		log.Printf("Error when scan [TargetID] %s [Error] %s", target.ID, err)
 		return enums.ErrSystem

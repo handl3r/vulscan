@@ -11,5 +11,6 @@ type ApplicationContext struct {
 	SegmentService      *services.SegmentService
 	AuthService         *services.AuthenticationService
 	RegistrationService *services.RegistrationService
+	ScannerService      *services.ScannerService
 	DBConnection        *gorm.DB
 }

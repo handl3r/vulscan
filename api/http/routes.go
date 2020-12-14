@@ -31,8 +31,8 @@ func NewRouter(context *context.ApplicationContext, controllerManager *Controlle
 		DELETE("/:id", middlewares.RequireAccessToken(context), controllerManager.SegmentController.Delete)
 
 	router.
-		POST("/api/v1/discover", middlewares.RequireAccessToken(context), controllerManager.ProjectController.Discover)
-
+		POST("/api/v1/discover", middlewares.RequireAccessToken(context), controllerManager.ProjectController.Discover).
+		POST("/api/v1/scan", middlewares.RequireAccessToken(context), controllerManager.SegmentController.Get)
 	router.POST("/api/v1/signup", controllerManager.AuthController.Register)
 	router.POST("/api/v1/login", controllerManager.AuthController.Login)
 	return router
