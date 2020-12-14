@@ -66,5 +66,5 @@ func (a *AuthenticationService) generateAccessToken(tokenInfoPack packages.Token
 		"exp":    time.Now().Add(tokenInfoPack.ExpTime).Unix(),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(a.authSecretKey)
+	return token.SignedString([]byte(a.authSecretKey))
 }

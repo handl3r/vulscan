@@ -12,19 +12,34 @@ import (
 
 // CollyCrawler is crawler for static page html
 type CollyCrawler struct {
+	baseCrawlerDriver
 }
 
-func NewCollyCrawler() *CollyCrawler {
-	return &CollyCrawler{}
+func NewCollyCrawler(maximumTarget int) *CollyCrawler {
+	return &CollyCrawler{
+		baseCrawlerDriver{
+			maximumTarget: maximumTarget,
+		},
+	}
 }
 
+// TODO trigger maximum target
 func (c *CollyCrawler) CrawlURLs(domain *url.URL, maxDepth int) ([]models.Target, error) {
 	targets := make([]models.Target, 0)
 	existedMapTargets := make(map[string]bool)
-	collector := colly.NewCollector(
-		colly.AllowedDomains(domain.Scheme+"://"+domain.Host),
-		colly.MaxDepth(maxDepth),
-	)
+	var collector *colly.Collector
+	if maxDepth == 0 {
+		collector = colly.NewCollector(
+			colly.AllowedDomains(domain.Host),
+			colly.Async(true),
+		)
+	} else {
+		collector = colly.NewCollector(
+			colly.AllowedDomains(domain.Host),
+			colly.MaxDepth(maxDepth),
+		)
+	}
+	collector.Limit(&colly.LimitRule{DomainGlob: "*", Parallelism: 5})
 	collector.OnHTML("a[href]", func(element *colly.HTMLElement) {
 		absoluteURL := element.Request.AbsoluteURL(element.Attr("href"))
 		ok, newTarget, err := c.generateTarget(absoluteURL, domain, existedMapTargets)
@@ -38,7 +53,9 @@ func (c *CollyCrawler) CrawlURLs(domain *url.URL, maxDepth int) ([]models.Target
 		targets = append(targets, *newTarget)
 		_ = element.Request.Visit(element.Attr("href"))
 	})
-	return nil, nil
+	collector.Visit(domain.String())
+	collector.Wait()
+	return targets, nil
 }
 
 // generateTarget check if un-match scheme, not include domain host, or duplicate target in existedMapTargets
@@ -72,5 +89,6 @@ func (c *CollyCrawler) generateTarget(absoluteURL string, domainHost *url.URL,
 	return true, &models.Target{
 		URL:    parsedUrl,
 		Method: http.MethodGet,
+		RawURL: parsedUrl.String(),
 	}, nil
 }

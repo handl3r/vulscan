@@ -5,7 +5,7 @@ import (
 	"log"
 )
 
-func LoadEnvironments() {
+func loadEnvironments() {
 	if err := godotenv.Load(".env"); err != nil {
 		log.Fatalf("Can not load env")
 	}

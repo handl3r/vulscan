@@ -1,16 +1,15 @@
 package controllers
 
 import (
-	"encoding/json"
 	"github.com/gin-gonic/gin"
-	"vulscan/api/http"
+	"vulscan/api/http/context"
 )
 
 type SegmentController struct {
 	baseController
 }
 
-func NewSegmentController(appContext *http.ApplicationContext) *SegmentController {
+func NewSegmentController(appContext *context.ApplicationContext) *SegmentController {
 	return &SegmentController{
 		baseController{
 			AppContext: appContext,
@@ -30,12 +29,7 @@ func (s *SegmentController) Get(c *gin.Context) {
 		c.JSON(err.GetHttpCode(), err.GetMessage())
 		return
 	}
-	responseData, jsonErr := json.Marshal(segment)
-	if jsonErr != nil {
-		s.ErrorInternalServer(c)
-		return
-	}
-	s.Success(c, responseData)
+	s.Success(c, segment)
 }
 
 // Delete controller delete a segment by ID

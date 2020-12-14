@@ -7,10 +7,12 @@ import (
 
 // TODO make decorator for cover crawler to choose crawl by chromedp or colly
 type ChromeDPCrawler struct {
+}
 
+func NewChromeDPCrawler() *ChromeDPCrawler {
+	return new(ChromeDPCrawler)
 }
 
 func (c ChromeDPCrawler) CrawlURLs(domain *url.URL, maxDepth int) ([]models.Target, error) {
 	panic("implement me")
 }
-

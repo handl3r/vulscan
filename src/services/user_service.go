@@ -11,8 +11,11 @@ type UserService struct {
 	projectRepository repositories.ProjectRepository
 }
 
-func NewUserService(userRepository repositories.UserRepository) *UserService {
-	return &UserService{userRepository: userRepository}
+func NewUserService(userRepository repositories.UserRepository, projectRepository repositories.ProjectRepository) *UserService {
+	return &UserService{
+		userRepository:    userRepository,
+		projectRepository: projectRepository,
+	}
 }
 
 func (u *UserService) GetProjectByUser(currentUser *models.User) ([]*models.Project, enums.Error) {

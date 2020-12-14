@@ -12,11 +12,7 @@ type UserRepository struct {
 	baseRepository
 }
 
-func NewUserRepository(baseRepository baseRepository) *UserRepository {
-	return &UserRepository{baseRepository: baseRepository}
-}
-
-func NewUserRepositoryWithDbConnection(db *gorm.DB) *UserRepository {
+func NewUserRepository(db *gorm.DB) *UserRepository {
 	return &UserRepository{
 		baseRepository{
 			db: db,

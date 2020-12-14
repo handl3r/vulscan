@@ -12,8 +12,8 @@ type SegmentRepository struct {
 	baseRepository
 }
 
-func NewSegmentRepository(baseRepository baseRepository) *SegmentRepository {
-	return &SegmentRepository{baseRepository: baseRepository}
+func NewSegmentRepository(db *gorm.DB) *SegmentRepository {
+	return &SegmentRepository{baseRepository: baseRepository{db: db}}
 }
 
 func (sp *SegmentRepository) FindByID(id string) (*models.Segment, error) {
@@ -30,8 +30,7 @@ func (sp *SegmentRepository) FindByID(id string) (*models.Segment, error) {
 
 func (sp *SegmentRepository) GetByProjectID(projectID string) ([]models.Segment, error) {
 	segments := make([]models.Segment, 0)
-	project := &models.Project{ID: projectID}
-	err := sp.db.Model(project).Association("Segments").Find(&segments)
+	err := sp.db.Where("project_id = ?", projectID).Find(&segments).Error
 	if err != nil {
 		return nil, err
 	}
@@ -47,8 +46,16 @@ func (sp *SegmentRepository) Create(segment *models.Segment) error {
 	return nil
 }
 
-func (sp *SegmentRepository) Update(segment *models.Segment) error {
-	err := sp.db.Model(&models.Segment{}).Updates(segment).Error
+func (sp *SegmentRepository) UpdateWithMap(mapSegment map[string]interface{}) error {
+	err := sp.db.Model(&models.Segment{}).Where("id= ?", mapSegment["id"]).Updates(mapSegment).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (sp *SegmentRepository) UpdateIsCrawling(segmentID string, isCrawling bool) error {
+	err := sp.db.Model(&models.Segment{}).Where("id=?", segmentID).Update("is_crawling", isCrawling).Error
 	if err != nil {
 		return err
 	}
@@ -56,7 +63,7 @@ func (sp *SegmentRepository) Update(segment *models.Segment) error {
 }
 
 func (sp *SegmentRepository) DeleteByID(id string) error {
-	err := sp.db.Model(&models.Segment{}).Delete(&models.Segment{}, id).Error
+	err := sp.db.Delete(&models.Segment{ID: id}).Error
 	if err != nil {
 		return err
 	}
@@ -64,8 +71,8 @@ func (sp *SegmentRepository) DeleteByID(id string) error {
 }
 
 func (sp *SegmentRepository) DeleteProjectSegments(projectID string) error {
-	segments := make([]models.Segment, 0)
-	err := sp.db.Model(&models.Segment{}).Where("project_id = ?", projectID).Find(segments).Delete(segments).Error
+	var segments []models.Segment
+	err := sp.db.Model(&models.Segment{}).Where("project_id = ?", projectID).Find(&segments).Delete(&segments).Error
 	if err != nil {
 		return err
 	}

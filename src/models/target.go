@@ -6,13 +6,14 @@ import (
 )
 
 type Target struct {
-	ID        string   `json:"id" gorm:"primary key, not null"`
+	ID        string   `json:"id" gorm:"primary_key;not null"`
 	VulID     string   `json:"vul_id"`
-	URL       *url.URL `json:"url"`
+	URL       *url.URL `json:"url" gorm:"-"`
+	RawURL    string   `json:"raw_url"`
 	Method    string   `json:"method"`
 	Params    string   `json:"params"` // separate by '*|*' ex: ["p1", "p2", "p3=2"]
 	SegmentID string   `json:"segment_id"`
-	Segment   *Segment `json:"segment"`
+	Segment   *Segment `json:"segment" gorm:"-"`
 }
 
 func (t Target) GetMapParams() map[string]string {

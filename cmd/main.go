@@ -1,3 +1,21 @@
+package main
+
+import (
+	"vulscan/api/http"
+	"vulscan/bootstrap"
+	"vulscan/configs"
+)
+
+func main() {
+
+	configs.LoadConfig()
+	appContext := bootstrap.LoadServices(configs.Get())
+
+	controllerManager := bootstrap.LoadControllerManager(appContext)
+	server := http.NewServer(http.NewRouter(appContext, controllerManager))
+	server.Run(configs.Get().ServerAddress)
+}
+
 //package main
 //
 //import (
@@ -41,8 +59,8 @@
 //func main() {
 //	// Instantiate default collector
 //	c := colly.NewCollector(
-//		colly.AllowedDomains("handl3r.netlify.app"),
-//		colly.MaxDepth(1),
+//		colly.AllowedDomains("juice-shop.herokuapp.com"),
+//		colly.MaxDepth(2),
 //	)
 //
 //	// On every a element which has href attribute call callback
@@ -60,43 +78,38 @@
 //		fmt.Println("Visiting", r.URL.String())
 //	})
 //
-//	c.Visit("https://handl3r.netlify.app")
+//	c.Visit("http://juice-shop.herokuapp.com/#/")
 //}
 
-package main
+//package main
 
-import (
-	"fmt"
-	"net"
-	"net/url"
-)
-
-func main() {
-
-	s := "postgres://user:pass@host.com:40/path?k=v,1&t=2#f"
-
-	u, err := url.Parse(s)
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Println("scheme: ", u.Scheme)
-
-	fmt.Println("user: ", u.User)
-	fmt.Println("username: ", u.User.Username())
-	p, _ := u.User.Password()
-	fmt.Println("password: ", p)
-
-	fmt.Println("host: ", u.Host)
-	host, port, _ := net.SplitHostPort(u.Host)
-	fmt.Println("host: ", host)
-	fmt.Println("port: ", port)
-
-	fmt.Println("path", u.Path)
-	fmt.Println(u.Fragment)
-
-	fmt.Println(u.RawQuery)
-	m, i := url.ParseQuery(u.RawQuery)
-	fmt.Println(m, i)
-	fmt.Println(m["k"][0])
-}
+//
+//func main() {
+//
+//	s := "postgres://user:pass@host.com:40/path?k=v,1&t=2#f"
+//
+//	u, err := url.Parse(s)
+//	if err != nil {
+//		panic(err)
+//	}
+//
+//	fmt.Println("scheme: ", u.Scheme)
+//
+//	fmt.Println("user: ", u.User)
+//	fmt.Println("username: ", u.User.Username())
+//	p, _ := u.User.Password()
+//	fmt.Println("password: ", p)
+//
+//	fmt.Println("host: ", u.Host)
+//	host, port, _ := net.SplitHostPort(u.Host)
+//	fmt.Println("host: ", host)
+//	fmt.Println("port: ", port)
+//
+//	fmt.Println("path", u.Path)
+//	fmt.Println(u.Fragment)
+//
+//	fmt.Println(u.RawQuery)
+//	m, i := url.ParseQuery(u.RawQuery)
+//	fmt.Println(m, i)
+//	fmt.Println(m["k"][0])
+//}

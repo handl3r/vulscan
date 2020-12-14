@@ -13,8 +13,13 @@ type SegmentService struct {
 	vulRepository     repositories.VulRepository
 }
 
-func NewSegmentService(segmentRepository repositories.SegmentRepository, targetRepository repositories.TargetRepository, vulRepository repositories.VulRepository) *SegmentService {
-	return &SegmentService{segmentRepository: segmentRepository, targetRepository: targetRepository, vulRepository: vulRepository}
+func NewSegmentService(segmentRepository repositories.SegmentRepository, targetRepository repositories.TargetRepository,
+	vulRepository repositories.VulRepository) *SegmentService {
+	return &SegmentService{
+		segmentRepository: segmentRepository,
+		targetRepository:  targetRepository,
+		vulRepository:     vulRepository,
+	}
 }
 
 // GetByID get segment with all information by ID

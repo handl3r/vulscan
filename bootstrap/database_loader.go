@@ -6,10 +6,16 @@ import (
 	"gorm.io/gorm"
 	"log"
 	"vulscan/configs"
+	"vulscan/src/models"
 )
 
 func initDBConnection(conf *configs.Config) *gorm.DB {
-	return newConnection("mysql", conf.DBUser, conf.DBPassword, conf.DBPort, conf.DBHost, conf.DBName)
+	dbConnect := newConnection("mysql", conf.DBUser, conf.DBPassword, conf.DBPort, conf.DBHost, conf.DBName)
+	err := dbConnect.AutoMigrate(&models.User{}, &models.Project{}, &models.Segment{}, &models.Target{}, &models.Vul{}, &models.VulInfo{})
+	if err != nil {
+		log.Printf("Error when migrate db: %s", err)
+	}
+	return dbConnect
 }
 
 func newConnection(dbDriver, dbUser, dbPassword, dbPort, dbHost, dbName string) *gorm.DB {

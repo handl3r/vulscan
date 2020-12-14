@@ -4,7 +4,7 @@ import "vulscan/src/helpers"
 
 type CreateProjectPack struct {
 	Name   string `json:"name"`
-	Domain string `json:"target"`
+	Domain string `json:"domain"`
 }
 
 func ValidateCreateProjectPack(pack *CreateProjectPack) bool {

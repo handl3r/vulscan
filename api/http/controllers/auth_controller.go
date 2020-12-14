@@ -1,9 +1,8 @@
 package controllers
 
 import (
-	"encoding/json"
 	"github.com/gin-gonic/gin"
-	"vulscan/api/http"
+	"vulscan/api/http/context"
 	"vulscan/src/packages"
 )
 
@@ -11,7 +10,7 @@ type AuthenticationController struct {
 	baseController
 }
 
-func NewAuthenticationController(appContext *http.ApplicationContext) *AuthenticationController {
+func NewAuthenticationController(appContext *context.ApplicationContext) *AuthenticationController {
 	return &AuthenticationController{
 		baseController{
 			AppContext: appContext,
@@ -31,12 +30,7 @@ func (a *AuthenticationController) Register(c *gin.Context) {
 		c.JSON(err.GetHttpCode(), err.GetMessage())
 		return
 	}
-	responseData, bindErr := json.Marshal(user)
-	if bindErr != nil {
-		a.ErrorInternalServer(c)
-		return
-	}
-	a.Success(c, responseData)
+	a.Success(c, user)
 }
 
 func (a *AuthenticationController) Login(c *gin.Context) {
@@ -51,10 +45,5 @@ func (a *AuthenticationController) Login(c *gin.Context) {
 		c.JSON(err.GetHttpCode(), err.GetMessage())
 		return
 	}
-	responseData, bindErr := json.Marshal(authResponsePack)
-	if bindErr != nil {
-		a.ErrorInternalServer(c)
-		return
-	}
-	a.Success(c, responseData)
+	a.Success(c, authResponsePack)
 }

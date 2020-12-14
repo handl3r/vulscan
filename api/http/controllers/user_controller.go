@@ -1,16 +1,15 @@
 package controllers
 
 import (
-	"encoding/json"
 	"github.com/gin-gonic/gin"
-	"vulscan/api/http"
+	"vulscan/api/http/context"
 )
 
 type UserController struct {
 	baseController
 }
 
-func NewUserController(appContext *http.ApplicationContext) *UserController {
+func NewUserController(appContext *context.ApplicationContext) *UserController {
 	return &UserController{
 		baseController{
 			AppContext: appContext,
@@ -29,10 +28,5 @@ func (u *UserController) GetProjectsByUserID(c *gin.Context) {
 		c.JSON(err.GetHttpCode(), err.GetMessage())
 		return
 	}
-	responseData, jsonErr := json.Marshal(projects)
-	if jsonErr != nil {
-		u.ErrorInternalServer(c)
-		return
-	}
-	u.Success(c, responseData)
+	u.Success(c, projects)
 }

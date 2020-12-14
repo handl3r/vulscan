@@ -12,16 +12,13 @@ type ProjectRepository struct {
 	baseRepository
 }
 
-func NewProjectRepository(baseRepository baseRepository) *ProjectRepository {
-	return &ProjectRepository{baseRepository: baseRepository}
+func NewProjectRepository(db *gorm.DB) *ProjectRepository {
+	return &ProjectRepository{baseRepository: baseRepository{db: db}}
 }
 
 func (pr *ProjectRepository) GetByUserID(userID string) ([]*models.Project, error) {
-	user := &models.User{
-		ID: userID,
-	}
-	projects := make([]*models.Project, 0)
-	err := pr.db.Model(user).Association("UserID").Find(&projects)
+	var projects []*models.Project
+	err := pr.db.Where("user_id = ?", userID).Find(&projects).Error
 	if err == gorm.ErrRecordNotFound {
 		return nil, enums.ErrEntityNotFound
 	}
@@ -53,7 +50,7 @@ func (pr *ProjectRepository) Create(project *models.Project) error {
 }
 
 func (pr *ProjectRepository) DeleteByID(id string) error {
-	err := pr.db.Model(&models.Project{}).Delete(&models.Project{}, id).Error
+	err := pr.db.Delete(&models.Project{ID: id}).Error
 	if err != nil {
 		return err
 	}
@@ -61,7 +58,7 @@ func (pr *ProjectRepository) DeleteByID(id string) error {
 }
 
 func (pr *ProjectRepository) Update(project *models.Project) (*models.Project, error) {
-	err := pr.db.Model(&models.Project{}).Updates(project).Error
+	err := pr.db.Model(&models.Project{}).Where("id= ?", project.ID).Updates(project).Error
 	if err != nil {
 		return nil, err
 	}

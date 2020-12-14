@@ -11,5 +11,5 @@ type User struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 
-	Projects []Project `json:"projects"`
+	Projects []Project `json:"projects" gorm:"-"`
 }

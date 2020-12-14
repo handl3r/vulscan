@@ -11,9 +11,11 @@ type TargetRepository struct {
 	baseRepository
 }
 
-func NewTargetRepository(baseRepository baseRepository) *TargetRepository {
+func NewTargetRepository(db *gorm.DB) *TargetRepository {
 	return &TargetRepository{
-		baseRepository,
+		baseRepository: baseRepository{
+			db: db,
+		},
 	}
 }
 

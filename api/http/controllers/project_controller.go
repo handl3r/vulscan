@@ -1,9 +1,9 @@
 package controllers
 
 import (
-	"encoding/json"
 	"github.com/gin-gonic/gin"
-	"vulscan/api/http"
+	"log"
+	"vulscan/api/http/context"
 	"vulscan/src/packages"
 )
 
@@ -11,7 +11,7 @@ type ProjectController struct {
 	baseController
 }
 
-func NewProjectController(appContext *http.ApplicationContext) *ProjectController {
+func NewProjectController(appContext *context.ApplicationContext) *ProjectController {
 	return &ProjectController{
 		baseController{
 			AppContext: appContext,
@@ -31,18 +31,14 @@ func (p *ProjectController) Get(c *gin.Context) {
 		c.JSON(err.GetHttpCode(), err.GetMessage())
 		return
 	}
-	responseData, jsonErr := json.Marshal(project)
-	if jsonErr != nil {
-		p.ErrorInternalServer(c)
-		return
-	}
-	p.Success(c, responseData)
+	p.Success(c, project)
 }
 
 // Create controller create project
 func (p *ProjectController) Create(c *gin.Context) {
 	var createProjectPack *packages.CreateProjectPack
-	if err := c.ShouldBindJSON(createProjectPack); err != nil {
+	if err := c.ShouldBindJSON(&createProjectPack); err != nil {
+		log.Printf("Error when bindJSOn for creatProjectPack: %s", err)
 		p.DefaultBadRequest(c)
 		return
 	}
@@ -51,12 +47,7 @@ func (p *ProjectController) Create(c *gin.Context) {
 		c.JSON(err.GetHttpCode(), err.GetMessage())
 		return
 	}
-	responseData, newError := json.Marshal(project)
-	if newError != nil {
-		p.ErrorInternalServer(c)
-		return
-	}
-	p.Success(c, responseData)
+	p.Success(c, project)
 }
 
 // Update controller update project
@@ -75,12 +66,7 @@ func (p *ProjectController) Update(c *gin.Context) {
 	if err != nil {
 		c.JSON(err.GetHttpCode(), err.GetMessage())
 	}
-	dataResponse, jsonErr := json.Marshal(updatedProject)
-	if jsonErr != nil {
-		p.ErrorInternalServer(c)
-		return
-	}
-	p.Success(c, dataResponse)
+	p.Success(c, updatedProject)
 }
 
 // Delete controller delete a project return http.StatusNoContent if success
@@ -99,7 +85,7 @@ func (p *ProjectController) Delete(c *gin.Context) {
 
 func (p *ProjectController) Discover(c *gin.Context) {
 	var discoverProjectPack *packages.DiscoverProjectPack
-	if err := c.ShouldBindJSON(discoverProjectPack); err != nil {
+	if err := c.ShouldBindJSON(&discoverProjectPack); err != nil {
 		p.DefaultBadRequest(c)
 		return
 	}
@@ -108,10 +94,5 @@ func (p *ProjectController) Discover(c *gin.Context) {
 		c.JSON(err.GetHttpCode(), err.GetMessage())
 		return
 	}
-	responseData, jsonErr := json.Marshal(segment)
-	if jsonErr != nil {
-		p.ErrorInternalServer(c)
-		return
-	}
-	p.Success(c, responseData)
+	p.Success(c, segment)
 }

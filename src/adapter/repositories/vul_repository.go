@@ -12,8 +12,10 @@ type VulRepository struct {
 	baseRepository
 }
 
-func NewVulRepository(baseRepository baseRepository) *VulRepository {
-	return &VulRepository{baseRepository: baseRepository}
+func NewVulRepository(db *gorm.DB) *VulRepository {
+	return &VulRepository{baseRepository: baseRepository{
+		db: db,
+	}}
 }
 
 func (vp *VulRepository) FindByID(id string) (*models.Vul, error) {
@@ -29,9 +31,8 @@ func (vp *VulRepository) FindByID(id string) (*models.Vul, error) {
 }
 
 func (vp *VulRepository) GetBySegmentID(segmentID string) ([]models.Vul, error) {
-	segment := &models.Segment{ID: segmentID}
-	vuls := make([]models.Vul, 0)
-	err := vp.db.Model(segment).Association("SegmentID").Find(vuls)
+	var vuls []models.Vul
+	err := vp.db.Where("segment_id = ?", segmentID).Find(&vuls).Error
 	if err == gorm.ErrRecordNotFound {
 		return nil, enums.ErrEntityNotFound
 	}
@@ -51,8 +52,8 @@ func (vp *VulRepository) Create(vul *models.Vul) error {
 }
 
 func (vp *VulRepository) DeleteSegmentVuls(segmentID string) error {
-	vuls := make([]models.Vul, 0)
-	err := vp.db.Model(&models.Vul{}).Where("segment_id = ?", segmentID).Find(vuls).Delete(vuls).Error
+	var vuls []models.Vul
+	err := vp.db.Model(&models.Vul{}).Where("segment_id = ?", segmentID).Find(&vuls).Delete(&vuls).Error
 	if err != nil {
 		return err
 	}

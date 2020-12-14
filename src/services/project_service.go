@@ -2,7 +2,6 @@ package services
 
 import (
 	"log"
-	url2 "net/url"
 	"time"
 	"vulscan/src/adapter/repositories"
 	"vulscan/src/enums"
@@ -114,6 +113,10 @@ func (ps *ProjectService) DeleteByID(projectID string, currentUser *models.User)
 	if project.UserID != currentUser.ID {
 		return enums.ErrResourceNotFound
 	}
+	err = ps.projectRepository.DeleteByID(projectID)
+	if err != nil {
+		return enums.ErrSystem
+	}
 	go func() {
 		err = ps.segmentRepository.DeleteProjectSegments(project.ID)
 		if err != nil {
@@ -148,13 +151,14 @@ func (ps *ProjectService) Crawl(discoverProjectPack *packages.DiscoverProjectPac
 		return nil, enums.ErrSystem
 	}
 	go func() {
-		url, err := url2.Parse(project.Domain)
+		log.Printf("Start discovering for project: %s, domain: %s", project.ID, project.Domain)
+		targets, err := ps.crawlerService.DiscoverURLsAndSave(discoverProjectPack, segment.ID, project)
 		if err != nil {
-			log.Printf("Can not parse domain %s of project %s to prepare for discover urls with error: %s",
-				project.Domain, project.ID, err)
+			log.Printf("Finish discovering with error: %s", err)
 			return
 		}
-		_, _ = ps.crawlerService.DiscoverURLsAndSave(url, discoverProjectPack.IsLoadByJS, segment.ID, project.ID)
+		log.Printf("Finish discovering successfully for project: %s, domain: %s with %d targets",
+			project.ID, project.Domain, len(targets))
 	}()
 	return segment, nil
 }
