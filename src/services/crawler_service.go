@@ -64,7 +64,7 @@ func (c *CrawlerService) DiscoverURLsAndSave(discoverPack *packages.DiscoverProj
 	updateMap["id"] = segmentID
 	updateMap["IsCrawling"] = false
 	updateMap["TargetNumber"] = len(targets)
-	newError = c.segmentRepository.UpdateWithMap(updateMap)
+	_, newError = c.segmentRepository.UpdateWithMap(updateMap)
 	if newError != nil {
 		log.Printf("Can not update crawling status for segment %s", segmentID)
 	}

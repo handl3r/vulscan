@@ -7,7 +7,6 @@ import (
 )
 
 func main() {
-
 	configs.LoadConfig()
 	appContext := bootstrap.LoadServices(configs.Get())
 

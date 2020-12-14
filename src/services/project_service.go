@@ -142,6 +142,7 @@ func (ps *ProjectService) Crawl(discoverProjectPack *packages.DiscoverProjectPac
 	segment := &models.Segment{
 		IsScanned:  false,
 		IsCrawling: true,
+		ScanningStatus: enums.StatusNotRunning,
 		CreatedAt:  now,
 		ProjectID:  project.ID,
 		UserID:     currentUser.ID,

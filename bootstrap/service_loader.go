@@ -30,7 +30,7 @@ func LoadServices(conf *configs.Config) *context.ApplicationContext {
 	segmentService := services.NewSegmentService(*segmentRepository, *targetRepository, *vulRepository)
 	authService := services.NewAuthenticationService(userRepository, conf.AccessTokenExp, conf.AuthSecretKet)
 	registrationService := services.NewRegistrationService(userRepository)
-	scannerService := services.NewScannerService(*segmentRepository, *vulRepository, *sqlMapClient)
+	scannerService := services.NewScannerService(*segmentRepository, *vulRepository, *targetRepository, *sqlMapClient)
 	appContext := context.ApplicationContext{
 		ProjectService:      projectService,
 		UserService:         userService,

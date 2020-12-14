@@ -12,6 +12,7 @@ type ControllerManager struct {
 	ProjectController *controllers.ProjectController
 	SegmentController *controllers.SegmentController
 	AuthController    *controllers.AuthenticationController
+	ScannerController *controllers.ScannerController
 }
 
 func NewRouter(context *context.ApplicationContext, controllerManager *ControllerManager) *gin.Engine {
@@ -32,7 +33,7 @@ func NewRouter(context *context.ApplicationContext, controllerManager *Controlle
 
 	router.
 		POST("/api/v1/discover", middlewares.RequireAccessToken(context), controllerManager.ProjectController.Discover).
-		POST("/api/v1/scan", middlewares.RequireAccessToken(context), controllerManager.SegmentController.Get)
+		POST("/api/v1/scan", middlewares.RequireAccessToken(context), controllerManager.ScannerController.Scan)
 	router.POST("/api/v1/signup", controllerManager.AuthController.Register)
 	router.POST("/api/v1/login", controllerManager.AuthController.Login)
 	return router

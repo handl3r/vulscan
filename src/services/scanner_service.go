@@ -9,36 +9,86 @@ import (
 	"vulscan/src/adapter/repositories"
 	"vulscan/src/enums"
 	"vulscan/src/models"
+	"vulscan/src/packages"
 )
 
 type ScannerService struct {
 	segmentRepository repositories.SegmentRepository
 	vulRepository     repositories.VulRepository
+	targetRepository  repositories.TargetRepository
 	sqlmapClient      clients.SqlmapClient
 }
 
 func NewScannerService(
 	segmentRepository repositories.SegmentRepository,
 	vulRepository repositories.VulRepository,
+	targetRepository repositories.TargetRepository,
 	sqlMapClient clients.SqlmapClient) *ScannerService {
 	return &ScannerService{
 		segmentRepository: segmentRepository,
 		vulRepository:     vulRepository,
+		targetRepository:  targetRepository,
 		sqlmapClient:      sqlMapClient,
 	}
+}
+
+// TODO restrict to scan one time for a segment
+func (ss *ScannerService) ScanSegment(scanSegmentPack *packages.ScanSegmentPack, currentUser *models.User,
+) (*models.Segment, enums.Error) {
+	segment, err := ss.segmentRepository.FindByID(scanSegmentPack.SegmentID)
+	if err == enums.ErrEntityNotFound {
+		return nil, enums.ErrInvalidRequest
+	}
+	if err != nil {
+		log.Printf("Error when get segment by ID: %s", scanSegmentPack.SegmentID)
+		return nil, enums.ErrSystem
+	}
+	if segment.UserID != currentUser.ID {
+		return nil, enums.ErrUnauthorized
+	}
+	targets, err := ss.targetRepository.GetAllBySegmentID(segment.ID)
+	if err != nil && err != enums.ErrEntityNotFound {
+		return nil, enums.ErrSystem
+	}
+	if targets == nil || err == enums.ErrEntityNotFound {
+		return nil, enums.ErrNoResources
+	}
+	go ss.ScanMultiTargets(targets)
+	updateSegmentMap := make(map[string]interface{})
+	updateSegmentMap["id"] = segment.ID
+	updateSegmentMap["ScanningStatus"] = enums.StatusRunning
+	updatedSegment, err := ss.segmentRepository.UpdateWithMap(updateSegmentMap)
+	if err != nil {
+		log.Printf("Can not update scanning status for segment with error: %s", err)
+		return updatedSegment, enums.ErrSystem
+	}
+	return updatedSegment, nil
 }
 
 func (ss *ScannerService) ScanMultiTargets(targets []models.Target) {
 	resultChan := make(chan *models.Vul)
 	var wg sync.WaitGroup
 	go func(segmentID string) {
+		numVuls := 0
 		for vul := range resultChan {
 			err := ss.vulRepository.Create(vul)
 			if err != nil {
 				log.Printf("Can not save a vul with error: %s", err)
 			}
+			numVuls++
+			log.Printf("Detect and save vul %s for segment %s", vul.ID, segmentID)
 		}
-		log.Printf("Save all vul of segment: %s")
+		log.Printf("Save all vul of segment: %s", segmentID)
+		updateSegmentMap := make(map[string]interface{})
+		updateSegmentMap["id"] = segmentID
+		updateSegmentMap["ScanningStatus"] = enums.StatusTerminated
+		updateSegmentMap["VulNumber"] = numVuls
+		_, err := ss.segmentRepository.UpdateWithMap(updateSegmentMap)
+		if err != nil {
+			log.Printf("Can not update scanning status segment %s after finish scanwiht error: %s",
+				segmentID, err,
+			)
+		}
 	}(targets[0].SegmentID)
 
 	for i := range targets {
@@ -59,6 +109,7 @@ func (ss *ScannerService) scanTarget(target models.Target, resultChan chan *mode
 		log.Printf("Error when scan [TargetID] %s [Error] %s", target.ID, err)
 		return enums.ErrSystem
 	}
+	log.Printf("Create new task: %s", taskID)
 	switch target.Method {
 	case http.MethodGet:
 		err = ss.sqlmapClient.SetOptionGET(taskID)

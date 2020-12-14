@@ -22,7 +22,7 @@ func (smc *SqlmapClient) NewTask() (string, error) {
 	req := fasthttp.AcquireRequest()
 	defer fasthttp.ReleaseRequest(req)
 	req.Header.SetMethod("GET")
-	requestURL := fmt.Sprintf("%s:%s/new/task", smc.endPoint, smc.port)
+	requestURL := fmt.Sprintf("%s:%s/task/new", smc.endPoint, smc.port)
 	req.SetRequestURI(requestURL)
 	resp := fasthttp.AcquireResponse()
 	defer fasthttp.ReleaseResponse(resp)

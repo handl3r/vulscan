@@ -31,7 +31,7 @@ func LoadConfig() {
 		DBUser:               GetString("DB_USER"),
 		DBPassword:           GetString("DB_PASSWORD"),
 		DBName:               GetString("DB_NAME"),
-		SQLMapServerHost:     GetStringWithDefault("SQLMAP_SERVER_HOST", "0.0.0.0"),
+		SQLMapServerHost:     GetStringWithDefault("SQLMAP_SERVER_HOST", "http://0.0.0.0"),
 		SQLMapServerPort:     GetStringWithDefault("SQLMAP_SERVER_PORT", "8775"),
 		AuthSecretKet:        GetString("AUTH_SECRET_KEY"),
 		AccessTokenExp:       GetDurationWithDefault("ACCESS_EXP_TIME", 60*24*time.Hour),

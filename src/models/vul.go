@@ -6,6 +6,7 @@ type Vul struct {
 	ID        string `json:"task_id" gorm:"primary_key;not null"`
 	TargetID  string `json:"target_id" gorm:"not null"`
 	Target    Target `json:"target" gorm:"-"`
+	RawURL    string `json:"raw_url"`
 	Method    string `json:"method"`
 	Parameter string `json:"parameter"`
 	Suffix    string `json:"suffix"`
@@ -20,8 +21,9 @@ type Vul struct {
 
 func NewVulWithTarget(target Target) *Vul {
 	return &Vul{
-		TargetID: target.ID,
+		TargetID:  target.ID,
 		Target:    target,
+		RawURL:    target.RawURL,
 		Method:    target.Method,
 		SegmentID: target.SegmentID,
 	}

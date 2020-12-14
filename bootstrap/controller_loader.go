@@ -11,11 +11,13 @@ func LoadControllerManager(appContext *context.ApplicationContext) *http.Control
 	projectController := controllers.NewProjectController(appContext)
 	segmentController := controllers.NewSegmentController(appContext)
 	authController := controllers.NewAuthenticationController(appContext)
+	scannerController := controllers.NewScannerController(appContext)
 
 	return &http.ControllerManager{
 		UserController:    userController,
 		ProjectController: projectController,
 		SegmentController: segmentController,
 		AuthController:    authController,
+		ScannerController: scannerController,
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"log"
 	"vulscan/src/enums"
 	"vulscan/src/models"
 )
@@ -46,12 +47,17 @@ func (sp *SegmentRepository) Create(segment *models.Segment) error {
 	return nil
 }
 
-func (sp *SegmentRepository) UpdateWithMap(mapSegment map[string]interface{}) error {
+func (sp *SegmentRepository) UpdateWithMap(mapSegment map[string]interface{}) (*models.Segment, error) {
 	err := sp.db.Model(&models.Segment{}).Where("id= ?", mapSegment["id"]).Updates(mapSegment).Error
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	updatedSegment, err := sp.FindByID(mapSegment["id"].(string))
+	if err != nil {
+		log.Printf("Can not get segment by id with error: %s", err)
+		return updatedSegment, err
+	}
+	return updatedSegment, nil
 }
 
 func (sp *SegmentRepository) UpdateIsCrawling(segmentID string, isCrawling bool) error {
