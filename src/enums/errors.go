@@ -67,6 +67,12 @@ var Forbidden = NewHttpCustomError(
 	"forbidden",
 	"Forbidden",
 )
+
+var NotAllowed = NewHttpCustomError(
+	http.StatusMethodNotAllowed,
+	"not allowed",
+	"This action is not allowed",
+)
 var ErrSystem = NewHttpCustomError(
 	http.StatusInternalServerError,
 	"system error",

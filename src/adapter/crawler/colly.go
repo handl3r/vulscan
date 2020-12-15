@@ -1,4 +1,4 @@
-package crawler_driver
+package crawler
 
 import (
 	"github.com/gocolly/colly"
@@ -12,12 +12,12 @@ import (
 
 // CollyCrawler is crawler for static page html
 type CollyCrawler struct {
-	baseCrawlerDriver
+	baseCrawler
 }
 
 func NewCollyCrawler(maximumTarget int) *CollyCrawler {
 	return &CollyCrawler{
-		baseCrawlerDriver{
+		baseCrawler{
 			maximumTarget: maximumTarget,
 		},
 	}

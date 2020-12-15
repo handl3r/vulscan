@@ -4,7 +4,7 @@ import (
 	"vulscan/api/http/context"
 	"vulscan/configs"
 	"vulscan/src/adapter/clients"
-	"vulscan/src/adapter/crawler_driver"
+	"vulscan/src/adapter/crawler"
 	"vulscan/src/adapter/repositories"
 	"vulscan/src/services"
 )
@@ -18,9 +18,9 @@ func LoadServices(conf *configs.Config) *context.ApplicationContext {
 	userRepository := repositories.NewUserRepository(dbConnection)
 	vulRepository := repositories.NewVulRepository(dbConnection)
 
-	collyCrawler := crawler_driver.NewCollyCrawler(conf.MaximumTargetCrawler)
-	chromeDPCrawler := crawler_driver.NewChromeDPCrawler()
-	crawlerDriver := crawler_driver.NewCrawlerDecorator(chromeDPCrawler, collyCrawler)
+	collyCrawler := crawler.NewCollyCrawler(conf.MaximumTargetCrawler)
+	chromeDPCrawler := crawler.NewChromeDPCrawler()
+	crawlerDriver := crawler.NewCrawlerDecorator(chromeDPCrawler, collyCrawler)
 	crawlerService := services.NewCrawlerService(crawlerDriver, targetRepository, segmentRepository)
 
 	sqlMapClient := clients.NewSqlmapClient("", conf.SQLMapServerHost, conf.SQLMapServerPort)

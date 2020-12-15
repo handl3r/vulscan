@@ -151,7 +151,8 @@ func (smc *SqlmapClient) CheckTaskStatus(taskID string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if !statusScanResponse.Success || statusScanResponse.ReturnCode == enums.GeneralErrorOccurred ||
+	// !statusScanResponse.Success ||
+	if statusScanResponse.ReturnCode == enums.GeneralErrorOccurred ||
 		statusScanResponse.ReturnCode == enums.UnhandledException {
 		return "", enums.ErrClientEndScan
 	}

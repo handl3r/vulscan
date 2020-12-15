@@ -1,4 +1,4 @@
-package crawler_driver
+package crawler
 
 import (
 	"net/url"
@@ -6,19 +6,19 @@ import (
 	"vulscan/src/models"
 )
 
-type CrawlerDecorator struct {
+type CrawlerStategyImpl struct {
 	chromeDPCrawler *ChromeDPCrawler
 	collyCrawler    *CollyCrawler
 }
 
-func NewCrawlerDecorator(chromeDPCrawler *ChromeDPCrawler, collyCrawler *CollyCrawler) *CrawlerDecorator {
-	return &CrawlerDecorator{
+func NewCrawlerDecorator(chromeDPCrawler *ChromeDPCrawler, collyCrawler *CollyCrawler) *CrawlerStategyImpl {
+	return &CrawlerStategyImpl{
 		chromeDPCrawler: chromeDPCrawler,
 		collyCrawler:    collyCrawler,
 	}
 }
 
-func (c *CrawlerDecorator) CrawlURLs(domain *url.URL, typeLoadSite string, maxDepth int) ([]models.Target, error) {
+func (c *CrawlerStategyImpl) CrawlURLs(domain *url.URL, typeLoadSite string, maxDepth int) ([]models.Target, error) {
 	targets := make([]models.Target, 0)
 	var err error
 	switch typeLoadSite {

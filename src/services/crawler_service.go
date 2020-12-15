@@ -5,20 +5,20 @@ import (
 	"net/http"
 	"net/url"
 	"vulscan/src/adapter/repositories"
+	"vulscan/src/common"
 	"vulscan/src/enums"
 	"vulscan/src/models"
 	"vulscan/src/packages"
-	"vulscan/src/ports"
 )
 
 type CrawlerService struct {
 	baseService
-	crawlerDriver     ports.CrawlerPort
+	crawlerDriver     common.CrawlerPort
 	targetRepository  *repositories.TargetRepository
 	segmentRepository *repositories.SegmentRepository
 }
 
-func NewCrawlerService(crawlerDriver ports.CrawlerPort, targetRepository *repositories.TargetRepository,
+func NewCrawlerService(crawlerDriver common.CrawlerPort, targetRepository *repositories.TargetRepository,
 	segmentRepository *repositories.SegmentRepository) *CrawlerService {
 	return &CrawlerService{
 		baseService:       baseService{},

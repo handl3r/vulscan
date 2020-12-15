@@ -43,6 +43,9 @@ func (ss *ScannerService) ScanSegment(scanSegmentPack *packages.ScanSegmentPack,
 		log.Printf("Error when get segment by ID: %s", scanSegmentPack.SegmentID)
 		return nil, enums.ErrSystem
 	}
+	//if segment.ScanningStatus == enums.StatusTerminated {
+	//	return nil, enums.NotAllowed
+	//}
 	if segment.UserID != currentUser.ID {
 		return nil, enums.ErrUnauthorized
 	}
@@ -91,6 +94,7 @@ func (ss *ScannerService) ScanMultiTargets(targets []models.Target) {
 		}
 	}(targets[0].SegmentID)
 
+	// TODO sqlmapapi is not strong enough to receive too much request
 	for i := range targets {
 		wg.Add(1)
 		go func(target models.Target) {
@@ -133,12 +137,13 @@ func (ss *ScannerService) scanTarget(target models.Target, resultChan chan *mode
 			log.Printf("Error when scan [TargetID] %s [Error] %s", target.ID, err)
 			return err
 		}
-		if status == enums.StatusRunning {
-			time.Sleep(5 * time.Second)
-		}
+		//if status == enums.StatusRunning {
+		//	time.Sleep(5 * time.Second)
+		//}
 		if status == enums.StatusTerminated {
 			break
 		}
+		time.Sleep(5 * time.Second)
 	}
 	_, isVul, err := ss.sqlmapClient.GetData(taskID)
 	if err != nil {
@@ -147,6 +152,7 @@ func (ss *ScannerService) scanTarget(target models.Target, resultChan chan *mode
 	}
 	if isVul == enums.ResultExistVul {
 		vul := models.NewVulWithTarget(target)
+		log.Printf("Get new vul %v for target %s", vul, target.ID)
 		resultChan <- vul
 	}
 	return nil

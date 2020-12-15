@@ -1,4 +1,4 @@
-package crawler_driver
+package crawler
 
 import (
 	"net/url"
