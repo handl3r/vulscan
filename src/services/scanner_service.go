@@ -110,7 +110,7 @@ func (ss *ScannerService) scanTarget(target models.Target, resultChan chan *mode
 	var err error
 	taskID, err := ss.sqlmapClient.NewTask()
 	if err != nil {
-		log.Printf("Error when scan [TargetID] %s [Error] %s", target.ID, err)
+		log.Printf("Error when make new task for [TargetID] %s [Error] %s", target.ID, err)
 		return enums.ErrSystem
 	}
 	log.Printf("Create new task: %s", taskID)
@@ -122,7 +122,7 @@ func (ss *ScannerService) scanTarget(target models.Target, resultChan chan *mode
 		err = ss.sqlmapClient.SetOptionForPOST(taskID, mapParams)
 	}
 	if err != nil {
-		log.Printf("Error when scan [TargetID] %s [Error] %s", target.ID, err)
+		log.Printf("Error when set option for target [TargetID] %s [Error] %s", target.ID, err)
 		return enums.ErrSystem
 	}
 	err = ss.sqlmapClient.StartScan(taskID, target.RawURL)
@@ -134,7 +134,7 @@ func (ss *ScannerService) scanTarget(target models.Target, resultChan chan *mode
 	for true {
 		status, err := ss.sqlmapClient.CheckTaskStatus(taskID)
 		if err != nil {
-			log.Printf("Error when scan [TargetID] %s [Error] %s", target.ID, err)
+			log.Printf("Error when check task status [TargetID] %s [Error] %s", target.ID, err)
 			return err
 		}
 		//if status == enums.StatusRunning {
