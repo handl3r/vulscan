@@ -17,6 +17,7 @@ type ControllerManager struct {
 
 func NewRouter(context *context.ApplicationContext, controllerManager *ControllerManager) *gin.Engine {
 	router := gin.Default()
+	router.Use(middlewares.CrossBrowser)
 
 	router.Group("/api/v1/user").
 		GET("/projects", middlewares.RequireAccessToken(context), controllerManager.UserController.GetProjectsByUserID)
