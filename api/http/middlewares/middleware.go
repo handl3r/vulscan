@@ -51,3 +51,15 @@ func unauthorized(c *gin.Context) {
 	c.JSON(http2.StatusUnauthorized, enums.ErrUnauthorized.GetMessage())
 	return
 }
+
+func CrossBrowser(c *gin.Context) {
+	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+	c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+	c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, OPTIONS, HEAD")
+	c.Writer.Header().Set("Access-Control-Allow-Headers", "*")
+	if c.Request.Method == "OPTIONS" && len(c.GetHeader("X-Request-Method")) == 0 {
+		c.AbortWithStatus(200)
+		return
+	}
+	c.Next()
+}
