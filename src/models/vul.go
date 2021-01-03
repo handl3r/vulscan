@@ -3,7 +3,7 @@ package models
 // Vul of a target. Can create, read, delete by delete segment, can not update. Belong to a Segment and has many VulInfo
 // and BonusInfo
 type Vul struct {
-	ID        string `json:"task_id" gorm:"primary_key;not null"`
+	ID        string `json:"id" gorm:"primary_key;not null"`
 	TargetID  string `json:"target_id" gorm:"not null"`
 	Target    Target `json:"target" gorm:"-"`
 	RawURL    string `json:"raw_url"`
