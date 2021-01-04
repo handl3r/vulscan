@@ -100,6 +100,7 @@ func (ss *ScannerService) ScanMultiTargets(targets []models.Target) {
 		go func(target models.Target) {
 			_ = ss.scanTarget(target, resultChan, &wg)
 		}(targets[i])
+		time.Sleep(1 * time.Second)
 	}
 	wg.Wait()
 	close(resultChan)
