@@ -31,7 +31,7 @@ func (sp *SegmentRepository) FindByID(id string) (*models.Segment, error) {
 
 func (sp *SegmentRepository) GetByProjectID(projectID string) ([]models.Segment, error) {
 	segments := make([]models.Segment, 0)
-	err := sp.db.Where("project_id = ?", projectID).Find(&segments).Error
+	err := sp.db.Order("created_at desc").Where("project_id = ?", projectID).Find(&segments).Error
 	if err != nil {
 		return nil, err
 	}
